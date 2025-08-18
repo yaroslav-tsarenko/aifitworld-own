@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  @apply bg-background text-foreground;
+}
+
+input, textarea, button {
+  font: inherit;
+}
+
+/* --- Legal pages typography --- */
+.legal h1 { @apply text-3xl font-extrabold; }
+.legal h2 { @apply mt-8 text-2xl font-semibold; }
+.legal h3 { @apply mt-6 text-xl font-semibold; }
+.legal p  { @apply mt-3 leading-relaxed opacity-85; }
+.legal ul { @apply mt-3 list-disc pl-6 space-y-1 opacity-85; }
+.legal li { @apply leading-relaxed; }
+.legal hr { @apply my-6 border-t border-white/10; }
+.legal .small { @apply text-xs opacity-70; }
