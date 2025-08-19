@@ -589,9 +589,23 @@ export async function POST(req: Request) {
     });
 
   } catch (error) {
-    console.error("PDF generation failed:", error);
+    console.error("=== PDF GENERATION FAILED ===", error);
+    
+    // Детальное логирование ошибки
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    } else {
+      console.error("Unknown error type:", typeof error);
+      console.error("Error value:", error);
+    }
+    
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      { 
+        error: "Failed to generate PDF",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
