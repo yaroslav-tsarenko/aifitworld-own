@@ -32,7 +32,7 @@ export default function TokenPurchase({ onSuccess }: TokenPurchaseProps) {
       // Перенаправляем на Stripe Checkout
       const stripe = await getStripe();
       if (stripe) {
-        const { error } = await stripe.redirectToCheckout({ url });
+        const { error } = await stripe.redirectToCheckout({ sessionId: url });
         if (error) {
           throw error;
         }

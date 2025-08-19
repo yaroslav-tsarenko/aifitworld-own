@@ -1474,30 +1474,18 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
   requireAuth: boolean; 
   openAuth: () => void;
   balance: number;
-  currentPreview?: any;
+  currentPreview?: {
+    title: string;
+    description: string;
+    images?: string[];
+    originalOpts: GeneratorOpts;
+  } | null;
   onDismissPreview?: () => void;
   onPublishCourse: (opts: GeneratorOpts) => Promise<void>;
   loadBalance: () => Promise<void>;
   balanceLoading: boolean;
 }) {
-  if (requireAuth) {
-    return (
-      <Card>
-        <div className="flex items-start gap-3">
-          <Lock size={18} style={{ color: THEME.accent }} />
-          <div>
-            <div className="text-sm font-semibold">Sign in required</div>
-            <p className="text-sm opacity-85">Log in to view your courses, history and PDFs.</p>
-            <div className="mt-3 flex gap-2">
-              <AccentButton onClick={openAuth}><UserPlus size={16}/> Create account</AccentButton>
-              <GhostButton onClick={openAuth}><LogIn size={16}/> Sign in</GhostButton>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
+  // Типы должны быть определены вне компонента или в начале
   type CourseItem = {
     id: string;
     title: string;
@@ -1521,6 +1509,7 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
     };
   };
 
+  // Все хуки должны быть в начале компонента
   const [loading, setLoading] = React.useState(true);
   const [courses, setCourses] = React.useState<CourseItem[]>([]);
   const [transactions, setTransactions] = React.useState<TxItem[]>([]);
@@ -1536,6 +1525,7 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
   const [publishingCourse, setPublishingCourse] = React.useState(false);
   const ITEMS_PER_PAGE = 20;
 
+  // Все хуки должны быть здесь, до условного возврата
   // Загрузка начальных данных
   React.useEffect(() => {
     let cancelled = false;
@@ -1668,6 +1658,25 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
       setRegeneratingDay(false);
     }
   }, [regeneratingDay, selectedCourse]);
+
+  // Условный возврат после всех хуков
+  if (requireAuth) {
+    return (
+      <Card>
+        <div className="flex items-start gap-3">
+          <Lock size={18} style={{ color: THEME.accent }} />
+          <div>
+            <div className="text-sm font-semibold">Sign in required</div>
+            <p className="text-sm opacity-85">Log in to view your courses, history and PDFs.</p>
+            <div className="mt-3 flex gap-2">
+              <AccentButton onClick={openAuth}><UserPlus size={16}/> Create account</AccentButton>
+              <GhostButton onClick={openAuth}><LogIn size={16}/> Sign in</GhostButton>
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   function exportTransactionsCSV() {
     const rows = transactions.map((t) => ({
@@ -2396,8 +2405,8 @@ function AuthModal({
         await onSignIn(email.trim(), password);
       }
       onClose();
-    } catch (e: any) {
-      setError(e?.message ?? "Something went wrong");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -2488,7 +2497,7 @@ export default function AIFitWorldPrototype() {
     if (res?.error) throw new Error(res.error);
   }
 
-  const isAuthed = !!(session?.user as any)?.id;
+  const isAuthed = !!(session?.user as { id?: string })?.id;
   const [region, setRegion] = useState<Region>("EU");
   const [active, setActive] = useState<NavId>("home");
   const { unitLabel } = currencyForRegion(region);
@@ -2504,7 +2513,12 @@ export default function AIFitWorldPrototype() {
   }, []);
   
   // Добавляем недостающие переменные для preview
-  const [currentPreview, setCurrentPreview] = useState<any>(null);
+  const [currentPreview, setCurrentPreview] = useState<{
+    title: string;
+    description: string;
+    images?: string[];
+    originalOpts: GeneratorOpts;
+  } | null>(null);
 
   const loadBalance = React.useCallback(async () => {
     if (!isAuthed) { setBalance(0); return; }

@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
 interface CoursePDFProps {
   course: {
     title: string;
-    options: any;
+    options: Record<string, unknown>;
     createdAt: string;
     tokensSpent: number;
     generatedContent?: string;

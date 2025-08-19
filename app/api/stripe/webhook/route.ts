@@ -8,13 +8,14 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: Request) {
   console.log("=== WEBHOOK RECEIVED ===");
-  console.log("Headers:", Object.fromEntries(headers().entries()));
+  const headersList = await headers();
+  console.log("Headers:", Object.fromEntries(headersList.entries()));
   
   const body = await req.text();
   console.log("Body length:", body.length);
   console.log("Body preview:", body.substring(0, 200));
   
-  const signature = headers().get("stripe-signature");
+  const signature = headersList.get("stripe-signature");
   console.log("Signature:", signature ? "Present" : "Missing");
 
   let event;
@@ -44,7 +45,12 @@ export async function POST(req: Request) {
   console.log("Webhook received:", { type: event.type, id: event.id });
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as { id: string; metadata: Record<string, string> };
+    const session = event.data.object as { 
+      id: string; 
+      metadata: Record<string, string>;
+      amount_total: number;
+      currency: string;
+    };
     console.log("Processing completed checkout session:", session);
     
     try {
