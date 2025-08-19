@@ -1861,42 +1861,7 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
               >
                 <RefreshCw size={16} className={balanceLoading ? "animate-spin" : ""} />
               </button>
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch('/api/stripe/test-webhook', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        type: "checkout.session.completed",
-                        data: {
-                          object: {
-                            id: "test_session",
-                            metadata: {
-                              userId: "test_user",
-                              tokens: "1000",
-                              amount: "10",
-                              region: "EU",
-                              source: "test"
-                            }
-                          }
-                        }
-                      })
-                    });
-                    const data = await res.json();
-                    console.log("Test webhook response:", data);
-                    alert("Test webhook sent! Check console for details.");
-                  } catch (error) {
-                    console.error("Test webhook failed:", error);
-                    alert("Test webhook failed! Check console for details.");
-                  }
-                }}
-                className="p-2 rounded-lg hover:bg-opacity-10 transition-colors"
-                style={{ backgroundColor: "#10B981" + '20' }}
-                title="Test webhook"
-              >
-                🧪
-              </button>
+
             </div>
           </div>
           <div className="mt-4">
