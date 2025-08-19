@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   console.log("Webhook received:", { type: event.type, id: event.id });
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as any;
+    const session = event.data.object as { id: string; metadata: Record<string, string> };
     console.log("Processing completed checkout session:", session);
     
     try {

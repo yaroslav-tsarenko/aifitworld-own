@@ -32,8 +32,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ ok: true }, { status: 201 });
-  } catch (e: any) {
-    const msg = e?.message || "Invalid request";
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Invalid request";
     return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

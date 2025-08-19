@@ -260,7 +260,7 @@ export async function POST(req: Request) {
       console.log("OpenAI content generated successfully");
 
     // Очищаем контент от markdown и лишних символов
-    let cleanContent = generatedContent
+    const cleanContent = generatedContent
       .replace(/```html\s*/g, '') // Убираем ```html
       .replace(/```\s*$/g, '') // Убираем ``` в конце
       .replace(/^\s*```\s*/g, '') // Убираем ``` в начале

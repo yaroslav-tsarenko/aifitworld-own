@@ -32,10 +32,10 @@ import { ToastContainer, Toast, ToastType } from "@/components/ui";
 
 
 /* ============================== Types & helpers ============================== */
-function downloadCSV(filename: string, rows: Array<Record<string, any>>) {
+function downloadCSV(filename: string, rows: Array<Record<string, unknown>>) {
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
-  const esc = (v: any) => {
+  const esc = (v: unknown) => {
     const s = String(v ?? "");
     if (new RegExp('[",\\n]').test(s)) return `"${s.replace(new RegExp('"', 'g'), '""')}"`;
     return s;
@@ -72,7 +72,7 @@ type HistoryItem = {
   type: "topup" | "spend";
   amount: number;              // в токенах (+ для пополнений, - для списаний)
   createdAt: string;           // ISO
-  meta: any | null;            // { money, currency, source } или null
+  meta: Record<string, unknown> | null;            // { money, currency, source } или null
 };
 
 const NAV: NavItem[] = [

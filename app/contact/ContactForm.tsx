@@ -47,8 +47,8 @@ export default function ContactForm() {
 
       setOk(true);
       setName(""); setEmail(""); setMessage("");
-    } catch (e: any) {
-      setError(e?.message ?? "Something went wrong");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
