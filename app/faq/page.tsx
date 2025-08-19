@@ -3,6 +3,7 @@
 import { THEME } from "@/lib/theme";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import * as React from "react";
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +17,9 @@ function Card({ children }: { children: React.ReactNode }) {
 }
 
 export default function FAQPage() {
+  // Состояние для валюты
+  const [region, setRegion] = React.useState<"EU" | "UK">("EU");
+  
   const faqs = [
     {
       q: "How do tokens work?",
@@ -54,7 +58,7 @@ export default function FAQPage() {
 
   return (
     <>
-      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} />
+      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} region={region} setRegion={setRegion} />
       
       <main className="mx-auto max-w-6xl px-4 py-8 md:py-12 space-y-8">
         <div className="space-y-4">

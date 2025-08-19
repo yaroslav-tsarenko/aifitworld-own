@@ -5,6 +5,9 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
+  // Состояние для валюты
+  const [region, setRegion] = React.useState<"EU" | "UK">("EU");
+  
   // Функции для хедера
   const handleOpenAuth = (mode: "signin" | "signup") => {
     // Здесь можно добавить логику для открытия модального окна
@@ -36,7 +39,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
                    linear-gradient(180deg, #0E0E10 0%, #0E0E10 100%)`,
       }}
     >
-      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} />
+      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} region={region} setRegion={setRegion} />
       
       <main className="mx-auto max-w-6xl px-4 py-8 md:py-12">{children}</main>
 

@@ -7,10 +7,10 @@ export default function SiteFooter() {
       className="border-t py-8 text-sm"
       style={{ borderColor: THEME.cardBorder }}
     >
-      <div className="mx-auto max-w-6xl px-4 grid gap-8 md:grid-cols-5">
+      <div className="mx-auto max-w-6xl px-4 grid gap-8 md:grid-cols-5 text-center md:text-left">
         {/* 1. Логотип */}
         <div className="space-y-2">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center md:justify-start gap-3">
             <img 
               src="/images/logo.svg" 
               alt="AIFitWorld Logo" 
@@ -31,7 +31,7 @@ export default function SiteFooter() {
             <div>Company number: 15954655</div>
             <div>Dept 6157 43 Owston Road, Carcroft, Doncaster,<br/> United Kingdom, DN6 8DA</div>
             <div>Email: <a href="mailto:info@aifitworld.co.uk" className="underline">info@aifitworld.co.uk</a></div>
-            <div>Phone: +44 20 0000 0000</div>
+            <div>Phone: +44 7418 604319</div>
           </div>
         </div>
 
@@ -59,7 +59,7 @@ export default function SiteFooter() {
         <div>
           <div className="font-semibold mb-2">Payment Methods</div>
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
               <img 
                 src="/images/visa-logo.svg" 
                 alt="Visa" 
@@ -67,7 +67,7 @@ export default function SiteFooter() {
               />
               <span className="text-xs opacity-70">Visa</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
               <img 
                 src="/images/mastercard-logo.svg" 
                 alt="Mastercard" 
@@ -75,7 +75,7 @@ export default function SiteFooter() {
               />
               <span className="text-xs opacity-70">Mastercard</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
               <img 
                 src="/images/Maestro_Logo.svg" 
                 alt="Maestro" 
@@ -83,7 +83,7 @@ export default function SiteFooter() {
               />
               <span className="text-xs opacity-70">Maestro</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
               <img 
                 src="/images/American_Express_logo.svg" 
                 alt="American Express" 
@@ -91,7 +91,7 @@ export default function SiteFooter() {
               />
               <span className="text-xs opacity-70">Amex</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
               <img 
                 src="/images/Apple_Pay_logo.svg" 
                 alt="Apple Pay" 
@@ -99,7 +99,7 @@ export default function SiteFooter() {
               />
               <span className="text-xs opacity-70">Apple Pay</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
               <img 
                 src="/images/Google_Pay_Logo.svg" 
                 alt="Google Pay" 

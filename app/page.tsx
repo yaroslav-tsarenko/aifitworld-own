@@ -991,18 +991,49 @@ function LiveSamplePreview({
   
   // Изображения для каждой недели
   const weekImages = [
-    "/images/at-home-setup.webp",    // Неделя 1 - домашняя обстановка
-    "/images/movement-detail.webp", // Неделя 2 - оборудование в зале
-    "/images/week-3-outdoor-training.webp", // Неделя 3 - тренировки на улице
-    "/images/week-4-advanced-setup.webp", // Неделя 4 - продвинутая обстановка
+    "/images/at-home-setup.webp",           // Week 1 - Home minimal
+    "/images/dramatic-gym-setup.webp",      // Week 2 - Strength (Gym)
+    "/images/dynamic-dumbbell-thruster.webp", // Week 3 - HIIT + Core (Mixed)
+    "/images/serene-yoga-pose.webp",        // Week 4 - Deload & Mobility
   ];
   
-  const sample = {
-    warmup: "Hip hinge, cat-camel, ankle rocks (6 min)",
-    main: "Goblet squat 3×10, Push-ups 3×8–12, DB row 3×12/arm, Plank 3×30s (24 min)",
-    finisher: "EMOM burpees ×5 (4 min)",
-    cooldown: "Couch stretch, thoracic rotations (5 min)",
-  };
+  // Данные для каждой недели
+  const weekData = [
+    {
+      title: "Foundations (Home minimal)",
+      warmup: "Hip hinge, cat-camel, ankle rocks (6 min)",
+      main: "Goblet squat 3×10, Push-ups 3×8–12, DB row 3×12/arm, Plank 3×30s (24 min)",
+      finisher: "EMOM burpees ×5 (4 min)",
+      cooldown: "Couch stretch, thoracic rotations (5 min)",
+      alternatives: "Injury-safe alts: Goblet → Box squat; Push-ups → Incline push-ups; DB row → Chest-supported row; Burpees → Step-burpees."
+    },
+    {
+      title: "Strength (Gym)",
+      warmup: "Jump rope easy, band pull-aparts, world's greatest stretch (6 min)",
+      main: "Front squat 4×6–8, Incline DB press 4×8–10, TRX row 4×10–12, Pallof press 3×12/side (24 min)",
+      finisher: "Kettlebell swings — Tabata 20/10 × 8 (4 min)",
+      cooldown: "Hip flexor stretch, calf stretch against wall (5 min)",
+      alternatives: "Injury-safe alts: Front squat → Goblet squat; Incline DB press → Floor press; TRX row → Chest-supported row; KB swings → Fast step-ups."
+    },
+    {
+      title: "HIIT + Core (Mixed)",
+      warmup: "Skips, shoulder circles, glute bridges (6 min)",
+      main: "DB thruster 4×8, Romanian deadlift 3×10, Pull-ups (or band-assisted) 3×AMRAP, Hollow hold 3×20–30s (24 min)",
+      finisher: "Intervals 20/10 × 8 — high knees / bike / rower (4 min)",
+      cooldown: "Hamstring stretch, child's pose rotations (5 min)",
+      alternatives: "Injury-safe alts: Thruster → Split squat + light push press; RDL → Band hip hinge; Pull-ups → Assisted pulldown; Intervals → Brisk march."
+    },
+    {
+      title: "Deload & Mobility",
+      warmup: "Parasympathetic breathing, Cossack squat mobility, band external rotations (6 min)",
+      main: "Tempo goblet squat 3×8 @ 3-1-3-0, Incline push-ups 3×10–12, 1-arm DB row 3×12/arm, Dead bug 3×8/side (24 min)",
+      finisher: "Low-impact shadow boxing 4×30s on / 30s off (4 min)",
+      cooldown: "Long spine decompression, 90/90 hip stretch (5 min)",
+      alternatives: "Injury-safe alts: Tempo goblet → Sit-to-stand; Row → Chest-supported row; Shadow boxing → Marching in place."
+    }
+  ];
+  
+  const sample = weekData[week - 1];
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-semibold">See a live sample</h3>
@@ -1036,6 +1067,14 @@ function LiveSamplePreview({
               </button>
             ))}
           </div>
+          
+          {/* Заголовок недели */}
+          <div className="mb-3">
+            <h4 className="font-semibold text-base" style={{ color: THEME.accent }}>
+              {sample.title}
+            </h4>
+          </div>
+          
           <ul className="text-sm space-y-2">
             <li>
               <span className="font-medium">Warm-up:</span> {sample.warmup}
@@ -1050,6 +1089,11 @@ function LiveSamplePreview({
               <span className="font-medium">Cool-down:</span> {sample.cooldown}
             </li>
           </ul>
+          
+          {/* Альтернативы для травм */}
+          <div className="mt-3 p-3 rounded-lg border text-xs" style={{ borderColor: THEME.cardBorder, background: THEME.card }}>
+            <div className="opacity-80">{sample.alternatives}</div>
+          </div>
           <div className="mt-4 flex gap-2">
             <AccentButton onClick={requireAuth ? openAuth : undefined}>
               {requireAuth ? (
@@ -1239,36 +1283,107 @@ function Testimonials() {
 }
 
 function FeedbackForm() {
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [ok, setOk] = React.useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setOk(false);
+
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const r = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+          page: "home",
+        }),
+      });
+
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.error ?? "Failed to send");
+      }
+
+      setOk(true);
+      setName(""); 
+      setEmail(""); 
+      setMessage("");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-semibold">Tell us what you need</h3>
-      <Card>
-        <div className="grid md:grid-cols-2 gap-4">
-          <input
-            placeholder="Name"
-            className="rounded-lg border px-3 py-2 bg-transparent"
+      <form onSubmit={onSubmit}>
+        <Card>
+          <div className="grid md:grid-cols-2 gap-4">
+            <input
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="rounded-lg border px-3 py-2 bg-transparent"
+              style={{ borderColor: THEME.cardBorder }}
+              required
+            />
+            <input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-lg border px-3 py-2 bg-transparent"
+              style={{ borderColor: THEME.cardBorder }}
+              required
+            />
+          </div>
+          <textarea
+            placeholder="Message"
+            rows={5}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            className="mt-4 w-full rounded-lg border px-3 py-2 bg-transparent"
             style={{ borderColor: THEME.cardBorder }}
+            required
           />
-          <input
-            placeholder="Email"
-            className="rounded-lg border px-3 py-2 bg-transparent"
-            style={{ borderColor: THEME.cardBorder }}
-          />
-        </div>
-        <textarea
-          placeholder="Message"
-          rows={5}
-          className="mt-4 w-full rounded-lg border px-3 py-2 bg-transparent"
-          style={{ borderColor: THEME.cardBorder }}
-        />
-        <div className="mt-3 text-xs opacity-70">We typically respond within 24–48h.</div>
-        <div className="mt-4 flex items-center gap-2">
-          <AccentButton>
-            <Mail size={16} /> Send message
-          </AccentButton>
-          <div className="text-xs opacity-60">By sending you agree to our Privacy.</div>
-        </div>
-      </Card>
+          <div className="mt-3 text-xs opacity-70">We typically respond within 24–48h.</div>
+          
+          {error && <div className="mt-3 text-xs text-red-400">{error}</div>}
+          {ok && <div className="mt-3 text-xs text-green-400">Thanks! We'll get back to you soon.</div>}
+          
+          <div className="mt-4 flex items-center gap-2">
+            <AccentButton type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail size={16} /> Send message
+                </>
+              )}
+            </AccentButton>
+            <div className="text-xs opacity-60">By sending you agree to our Privacy.</div>
+          </div>
+        </Card>
+      </form>
     </div>
   );
 }
@@ -2876,6 +2991,8 @@ export default function AIFitWorldPrototype() {
           onNavigate={(page: string) => goTo(page as NavId)}
           balance={balance}
           formatNumber={formatNumber}
+          region={region}
+          setRegion={setRegion}
         />
       
       <main className="mx-auto max-w-6xl px-4 py-8 md:py-12 space-y-8">

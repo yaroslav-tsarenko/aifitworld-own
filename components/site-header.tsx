@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { THEME } from "@/lib/theme";
-import { LogIn, UserPlus, Lock } from "lucide-react";
+import { LogIn, UserPlus, Lock, Menu, X } from "lucide-react";
 import * as React from "react";
 
 type Region = "EU" | "UK";
@@ -26,7 +26,7 @@ function RegionToggle({
         <button
           key={r}
           onClick={() => onChange(r)}
-          className={cn("px-3 py-2 text-xs md:text-sm", region === r ? "font-semibold" : "opacity-60")}
+          className={cn("px-3 py-2 text-xs md:text-sm font-medium", region === r ? "font-semibold" : "opacity-60")}
           style={{ background: region === r ? THEME.accent : "transparent", color: region === r ? "#0E0E10" : THEME.text }}
         >
           {r === "EU" ? "EUR" : "GBP"}
@@ -40,16 +40,20 @@ export default function SiteHeader({
   onOpenAuth,
   onNavigate,
   balance,
-  formatNumber
+  formatNumber,
+  region,
+  setRegion
 }: { 
   onOpenAuth: (mode: "signin" | "signup") => void;
   onNavigate: (page: string) => void;
   balance?: number;
   formatNumber?: (num: number) => string;
+  region: Region;
+  setRegion: (region: Region) => void;
 }) {
   const { data: session } = useSession();
   const isAuthed = !!session?.user?.email;
-  const [region, setRegion] = React.useState<Region>("EU");
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   // Навигация (используем те же ID, что и в главном приложении)
   const NAV = [
@@ -102,25 +106,25 @@ export default function SiteHeader({
           ))}
         </nav>
 
-        {/* Правый блок */}
-        <div className="flex items-center gap-3">
+        {/* Мобильное меню кнопка */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 rounded-lg border"
+          style={{ borderColor: THEME.cardBorder }}
+        >
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+
+        {/* Правый блок - скрыт на мобильных */}
+        <div className="hidden md:flex items-center gap-3">
           {/* Индикатор токенов для авторизованных пользователей */}
           {isAuthed && balance !== undefined && formatNumber && (
-            <>
-              {/* Мобильная версия */}
-              <div className="md:hidden flex items-center gap-1 px-2 py-1 rounded border" style={{ borderColor: THEME.cardBorder }}>
-                <div className="text-xs font-semibold" style={{ color: THEME.accent }}>
-                  {formatNumber(balance)} ◎
-                </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border" style={{ borderColor: THEME.cardBorder }}>
+              <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
+                {formatNumber(balance)} ◎
               </div>
-              {/* Десктопная версия */}
-              <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg border" style={{ borderColor: THEME.cardBorder }}>
-                <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
-                  {formatNumber(balance)} ◎
-                </div>
-                <div className="text-xs opacity-60">tokens</div>
-              </div>
-            </>
+              <div className="text-xs opacity-60">tokens</div>
+            </div>
           )}
           
           <RegionToggle region={region} onChange={setRegion} />
@@ -152,6 +156,90 @@ export default function SiteHeader({
           )}
         </div>
       </div>
+
+      {/* Мобильное меню */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t" style={{ borderColor: THEME.cardBorder }}>
+          <div className="px-4 py-4 space-y-3">
+            {/* Токены для авторизованных пользователей */}
+            {isAuthed && balance !== undefined && formatNumber && (
+              <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border" style={{ borderColor: THEME.cardBorder }}>
+                <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
+                  {formatNumber(balance)} ◎
+                </div>
+                <div className="text-xs opacity-60">tokens</div>
+              </div>
+            )}
+
+            {/* Переключатель валют */}
+            <div className="flex justify-center">
+              <RegionToggle region={region} onChange={setRegion} />
+            </div>
+
+            {/* Навигация */}
+            <nav className="space-y-2">
+              {NAV.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (n.id === "contact") {
+                      window.location.href = "/contact";
+                    } else {
+                      onNavigate(n.id);
+                    }
+                  }}
+                  className="w-full text-left rounded-lg px-3 py-3 text-sm opacity-70 hover:opacity-100 transition-opacity hover:bg-white/5"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {!isAuthed && n.protected && <Lock size={14} />} {n.label}
+                  </span>
+                </button>
+              ))}
+            </nav>
+
+            {/* Разделитель */}
+            <div className="border-t pt-3" style={{ borderColor: THEME.cardBorder }}>
+              {/* Кнопки авторизации для мобильных */}
+              {isAuthed ? (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    void signOut();
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold border"
+                  style={{ background: "transparent", color: THEME.text, borderColor: THEME.cardBorder }}
+                >
+                  Sign out
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth("signin");
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold border"
+                    style={{ background: "transparent", color: THEME.text, borderColor: THEME.cardBorder }}
+                  >
+                    <LogIn size={16} /> Sign in
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth("signup");
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold shadow-[0_0_0_1px_rgba(0,0,0,0.6)]"
+                    style={{ background: THEME.accent, color: "#0E0E10" }}
+                  >
+                    <UserPlus size={16} /> Create account
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

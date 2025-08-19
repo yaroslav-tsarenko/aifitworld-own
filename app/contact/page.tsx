@@ -7,10 +7,14 @@ import { Building2, MapPin, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import * as React from "react";
 
 
 
 export default function ContactPage() {
+  // Состояние для валюты
+  const [region, setRegion] = React.useState<"EU" | "UK">("EU");
+  
   // Функции для хедера
   const handleOpenAuth = (mode: "signin" | "signup") => {
     // Здесь можно добавить логику для открытия модального окна
@@ -28,7 +32,7 @@ export default function ContactPage() {
 
   return (
     <>
-      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} />
+      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} region={region} setRegion={setRegion} />
       
       <main className="mx-auto max-w-5xl px-4 py-10 md:py-14">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -71,8 +75,8 @@ export default function ContactPage() {
 
               <li className="flex items-start gap-3">
                 <Phone size={18} style={{ color: THEME.accent }} />
-                <Link href="tel:+442000000000" className="underline">
-                  +44 20 0000 0000
+                <Link href="tel:+447418604319" className="underline">
+                  +44 7418 604319
                 </Link>
               </li>
             </ul>
