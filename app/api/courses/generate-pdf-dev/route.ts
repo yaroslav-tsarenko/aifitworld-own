@@ -118,8 +118,9 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("File generation failed:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to generate file: " + (error instanceof Error ? error.message : String(error)) },
+      { error: "Failed to generate file: " + errorMessage },
       { status: 500 }
     );
   }
