@@ -3,7 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { openai } from "@/lib/openai";
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium-min';
+
+export const runtime = 'nodejs';
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -494,13 +498,10 @@ export async function POST(req: Request) {
     let pdfBuffer;
     try {
       const browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
         headless: true,
-        args: [
-          '--no-sandbox', 
-          '--disable-setuid-sandbox',
-          '--disable-web-security',
-          '--disable-features=VizDisplayCompositor'
-        ]
+        defaultViewport: { width: 1200, height: 800 },
       });
       
       const page = await browser.newPage();
@@ -557,35 +558,11 @@ export async function POST(req: Request) {
       
     } catch (pdfError) {
       console.error("PDF generation failed:", pdfError);
-      // Fallback к HTML если PDF не удался
-      console.log("Falling back to HTML generation");
-      
-      // Создаем HTML URL как fallback
-      const htmlDataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
-      
-      // Обновляем курс с HTML URL
-      await prisma.course.update({
-        where: { id: courseId },
-        data: { pdfUrl: htmlDataUrl },
-      });
-
-      return NextResponse.json({
-        success: true,
-        pdfUrl: htmlDataUrl,
-        filename: `course-${courseId}-${Date.now()}.html`,
-        htmlContent: htmlContent,
-        fallback: true,
-        error: pdfError instanceof Error ? pdfError.message : 'Unknown error'
-      });
+      throw pdfError; // Пробрасываем ошибку дальше
     }
     
     // Создаем data URL для PDF
     const pdfDataUrl = `data:application/pdf;base64,${Buffer.from(pdfBuffer).toString('base64')}`;
-    
-    // Проверяем размер и валидность
-    console.log("PDF Buffer size:", pdfBuffer.length);
-    console.log("PDF Buffer first 100 bytes:", pdfBuffer.slice(0, 100));
-    console.log("PDF starts with PDF header:", Buffer.from(pdfBuffer.slice(0, 4)).toString() === '%PDF');
     
     // Обновляем курс с PDF URL
     await prisma.course.update({
@@ -593,21 +570,15 @@ export async function POST(req: Request) {
       data: { pdfUrl: pdfDataUrl },
     });
 
+    console.log("=== PDF GENERATION COMPLETED SUCCESSFULLY ===");
+    console.log("PDF size:", pdfBuffer.length, "bytes");
+
     return NextResponse.json({
       success: true,
       pdfUrl: pdfDataUrl,
       filename,
-      htmlContent: htmlContent,
       pdfSize: pdfBuffer.length,
-      pdfHeader: Buffer.from(pdfBuffer.slice(0, 10)).toString('hex'),
-      debugInfo: {
-        totalImages: courseImages.length,
-        imagesInHeader: Math.min(3, courseImages.length),
-        imagesDistributed: courseImages.length - Math.min(3, courseImages.length),
-        imageUrls: courseImages.slice(0, 5), // Первые 5 URL для проверки
-        contentLength: enhancedContent.length,
-        hasImages: courseImages.length > 0
-      }
+      message: "PDF generated successfully with Puppeteer"
     });
 
   } catch (error) {
