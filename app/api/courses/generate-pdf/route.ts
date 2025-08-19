@@ -10,12 +10,16 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  console.log("=== PDF GENERATION STARTED ===");
+  
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
+    console.log("❌ Unauthorized access attempt");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    console.log("✅ User authenticated:", session.user.id);
     const body = await req.json();
     const { courseId } = body;
 
@@ -48,14 +52,15 @@ export async function POST(req: Request) {
       : course.options;
 
     // Генерируем контент через OpenAI API
-    console.log("Generating content via OpenAI API for course:", course.id);
+    console.log("🎯 Step 1: Generating content via OpenAI API for course:", course.id);
     
     // Генерируем изображения через DALL-E 3
+    console.log("🎨 Step 2: Starting DALL-E 3 image generation");
     let courseImages: string[] = [];
     try {
       // Получаем количество изображений из опций курса
       const imageCount = options.imageCount || 2; // По умолчанию 2, если не указано
-      console.log("Generating", imageCount, "images for course");
+      console.log("🎨 Generating", imageCount, "images for course");
       
       // Генерируем изображения по одному с уникальными промптами
       for (let i = 0; i < imageCount; i++) {
@@ -495,8 +500,10 @@ export async function POST(req: Request) {
     const filename = `course-${courseId}-${Date.now()}.pdf`;
     
     // Конвертируем HTML в PDF
+    console.log("📄 Step 3: Starting Puppeteer PDF generation");
     let pdfBuffer;
     try {
+      console.log("🚀 Launching browser with chromium...");
       const browser = await puppeteer.launch({
         args: chromium.args,
         executablePath: await chromium.executablePath(),
