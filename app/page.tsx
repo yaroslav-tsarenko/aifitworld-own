@@ -1365,7 +1365,7 @@ function FeedbackForm() {
           <div className="mt-3 text-xs opacity-70">We typically respond within 24–48h.</div>
           
           {error && <div className="mt-3 text-xs text-red-400">{error}</div>}
-          {ok && <div className="mt-3 text-xs text-green-400">Thanks! We'll get back to you soon.</div>}
+          {ok && <div className="mt-3 text-xs text-green-400">Thanks! We&apos;ll get back to you soon.</div>}
           
           <div className="mt-4 flex items-center gap-2">
             <AccentButton type="submit" disabled={loading}>
@@ -2564,10 +2564,7 @@ function AuthModal({
             {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
           </AccentButton>
 
-          <div className="grid grid-cols-2 gap-2">
-            <GhostButton className="w-full" disabled><LogIn size={16}/> Google</GhostButton>
-            <GhostButton className="w-full" disabled><LogIn size={16}/> Apple</GhostButton>
-          </div>
+
 
           <div className="text-xs opacity-70">By continuing you agree to our Terms and Privacy.</div>
           <button

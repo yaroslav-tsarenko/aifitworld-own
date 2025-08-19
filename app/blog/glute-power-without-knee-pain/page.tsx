@@ -88,7 +88,7 @@ export default function GlutePowerPage() {
         {/* Контент в карточках */}
         <div className="grid gap-4 md:gap-5 md:grid-cols-2">
           <Card>
-            <h3 className="font-semibold mb-2">Who it's for</h3>
+                         <h3 className="font-semibold mb-2">Who it&apos;s for</h3>
             <ul className="list-disc pl-5 space-y-1 opacity-85 text-sm">
               <li>Wants strong glutes with minimal knee stress</li>
               <li>Gym or home with a bench</li>
