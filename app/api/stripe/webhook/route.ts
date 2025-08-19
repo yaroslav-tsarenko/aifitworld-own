@@ -7,16 +7,24 @@ import { prisma } from "@/lib/db";
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: Request) {
-  console.log("=== WEBHOOK RECEIVED ===");
-  const headersList = await headers();
-  console.log("Headers:", Object.fromEntries(headersList.entries()));
-  
-  const body = await req.text();
-  console.log("Body length:", body.length);
-  console.log("Body preview:", body.substring(0, 200));
-  
-  const signature = headersList.get("stripe-signature");
-  console.log("Signature:", signature ? "Present" : "Missing");
+  try {
+    console.log("=== WEBHOOK RECEIVED ===");
+    console.log("Environment check:", {
+      hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+      hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      nodeEnv: process.env.NODE_ENV
+    });
+    
+    const headersList = await headers();
+    console.log("Headers:", Object.fromEntries(headersList.entries()));
+    
+    const body = await req.text();
+    console.log("Body length:", body.length);
+    console.log("Body preview:", body.substring(0, 200));
+    
+    const signature = headersList.get("stripe-signature");
+    console.log("Signature:", signature ? "Present" : "Missing");
 
   let event;
 
@@ -95,6 +103,10 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("=== WEBHOOK ERROR ===", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
 
 
