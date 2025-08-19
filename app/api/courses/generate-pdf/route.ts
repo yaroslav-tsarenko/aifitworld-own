@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { openai } from "@/lib/openai";
 import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium-min';
+import chromium from '@sparticuz/chromium';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
