@@ -8,16 +8,51 @@ import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import * as React from "react";
-
+import { useSession } from "next-auth/react";
+import { formatNumber } from "@/lib/tokens";
+import {
+  AccentButton,
+  Card,
+  GhostButton,
+  Pill,
+  Spinner,
+  ToastContainer,
+  type Toast,
+  type ToastType,
+} from "@/components/ui";
+import { ArrowRight, Lock } from "lucide-react";
 
 
 export default function ContactPage() {
-  // Состояние для валюты
+  const { data: session } = useSession();
+  const isAuthed = !!session?.user;
+  const [balance, setBalance] = React.useState<number | null>(null);
+  const [balanceLoading, setBalanceLoading] = React.useState(true);
   const [region, setRegion] = React.useState<"EU" | "UK">("EU");
-  
-  // Функции для хедера
+  const [toasts, setToasts] = React.useState<Toast[]>([]);
+
+  const addToast = (
+    type: ToastType,
+    title: string,
+    message?: string,
+    duration?: number
+  ) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts((toasts) => [...toasts, { id, type, title, message, duration }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((toasts) => toasts.filter((t) => t.id !== id));
+  };
+
+  const goTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const handleOpenAuth = (mode: "signin" | "signup") => {
-    // Здесь можно добавить логику для открытия модального окна
     console.log("Open auth:", mode);
   };
 
@@ -25,14 +60,38 @@ export default function ContactPage() {
     if (page === "home") {
       window.location.href = "/";
     } else {
-      // Для других страниц можно добавить логику
-      console.log("Navigate to:", page);
+      window.location.href = `/#${page}`;
     }
   };
 
+  React.useEffect(() => {
+    if (isAuthed) {
+      setBalanceLoading(true);
+      fetch("/api/tokens/balance")
+        .then((res) => res.json())
+        .then((data) => {
+          setBalance(data.balance);
+        })
+        .catch((error) => {
+          console.error("Error fetching balance:", error);
+          addToast("error", "Error", "Could not fetch token balance.");
+        })
+        .finally(() => {
+          setBalanceLoading(false);
+        });
+    }
+  }, [isAuthed]);
+
   return (
     <>
-      <SiteHeader onOpenAuth={handleOpenAuth} onNavigate={handleNavigate} region={region} setRegion={setRegion} />
+      <SiteHeader
+        onOpenAuth={handleOpenAuth}
+        onNavigate={handleNavigate}
+        region={region}
+        setRegion={setRegion}
+        balance={balance}
+        balanceLoading={balanceLoading}
+      />
       
       <main className="mx-auto max-w-5xl px-4 py-10 md:py-14">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -97,7 +156,8 @@ export default function ContactPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter onNavigate={handleNavigate} />
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 }

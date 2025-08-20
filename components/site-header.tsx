@@ -5,6 +5,8 @@ import { useSession, signOut } from "next-auth/react";
 import { THEME } from "@/lib/theme";
 import { LogIn, UserPlus, Lock, Menu, X } from "lucide-react";
 import * as React from "react";
+import { formatNumber } from "@/lib/tokens";
+import { Skeleton } from "@/components/ui";
 
 type Region = "EU" | "UK";
 
@@ -40,14 +42,14 @@ export default function SiteHeader({
   onOpenAuth,
   onNavigate,
   balance,
-  formatNumber,
+  balanceLoading,
   region,
   setRegion
 }: { 
   onOpenAuth: (mode: "signin" | "signup") => void;
   onNavigate: (page: string) => void;
-  balance?: number;
-  formatNumber?: (num: number) => string;
+  balance?: number | null;
+  balanceLoading?: boolean;
   region: Region;
   setRegion: (region: Region) => void;
 }) {
@@ -118,12 +120,18 @@ export default function SiteHeader({
         {/* Правый блок - скрыт на мобильных */}
         <div className="hidden md:flex items-center gap-3">
           {/* Индикатор токенов для авторизованных пользователей */}
-          {isAuthed && balance !== undefined && formatNumber && (
+          {isAuthed && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border" style={{ borderColor: THEME.cardBorder }}>
-              <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
-                {formatNumber(balance)} ◎
-              </div>
-              <div className="text-xs opacity-60">tokens</div>
+              {balanceLoading ? (
+                <Skeleton className="h-5 w-12" />
+              ) : (
+                <>
+                  <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
+                    {formatNumber(balance ?? 0)} ◎
+                  </div>
+                  <div className="text-xs opacity-60">tokens</div>
+                </>
+              )}
             </div>
           )}
           
@@ -162,12 +170,18 @@ export default function SiteHeader({
         <div className="md:hidden border-t" style={{ borderColor: THEME.cardBorder }}>
           <div className="px-4 py-4 space-y-3">
             {/* Токены для авторизованных пользователей */}
-            {isAuthed && balance !== undefined && formatNumber && (
+            {isAuthed && (
               <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border" style={{ borderColor: THEME.cardBorder }}>
-                <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
-                  {formatNumber(balance)} ◎
-                </div>
-                <div className="text-xs opacity-60">tokens</div>
+                {balanceLoading ? (
+                  <Skeleton className="h-5 w-12" />
+                ) : (
+                  <>
+                    <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
+                      {formatNumber(balance ?? 0)} ◎
+                    </div>
+                    <div className="text-xs opacity-60">tokens</div>
+                  </>
+                )}
               </div>
             )}
 

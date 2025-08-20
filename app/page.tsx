@@ -2948,13 +2948,13 @@ export default function AIFitWorldPrototype() {
                    linear-gradient(180deg, #0E0E10 0%, #0E0E10 100%)`,
       }}
     >
-              <SiteHeader 
+      <SiteHeader
           onOpenAuth={openAuth} 
           onNavigate={(page: string) => goTo(page as NavId)}
-          balance={balance}
-          formatNumber={formatNumber}
-          region={region}
-          setRegion={setRegion}
+        balance={balance}
+        formatNumber={formatNumber}
+        region={region}
+        setRegion={setRegion}
         />
       
       <main className="mx-auto max-w-6xl px-4 py-8 md:py-12 space-y-8">
@@ -2987,7 +2987,7 @@ export default function AIFitWorldPrototype() {
             <div className="flex items-center justify-between">
               <h2 className="text-2xl md:text-3xl font-extrabold">Pricing</h2>
               <div className="text-sm opacity-70">1 {unitLabel} = {TOKENS_PER_UNIT} tokens</div>
-            </div>
+              </div>
             <Pricing
               region={region}
               requireAuth={!isAuthed}
@@ -2996,7 +2996,7 @@ export default function AIFitWorldPrototype() {
               onCustomTopUp={(amt) => onTopUp(amt, "custom")}
               loading={topUpLoading}
             />
-          </div>
+            </div>
         )}
         {active === "dashboard" && (
           <Dashboard
@@ -3019,8 +3019,8 @@ export default function AIFitWorldPrototype() {
             </div>
             <p className="text-lg opacity-80">
               Redirecting to contact page...
-            </p>
-          </div>
+              </p>
+            </div>
         )}
         
         {active === "blog" && (
@@ -3037,7 +3037,7 @@ export default function AIFitWorldPrototype() {
                 </GhostButton>
               </Card>
             ))}
-          </div>
+            </div>
         )}
 
         {active === "faq" && (
@@ -3068,9 +3068,9 @@ export default function AIFitWorldPrototype() {
       <SiteFooter />
 
       {/* --- Auth modal mount --- */}
-      <AuthModal
+        <AuthModal
         open={authOpen}
-        mode={authMode}
+          mode={authMode}
         onModeChange={setAuthMode}
         onClose={() => setAuthOpen(false)}
         onRegister={handleRegister}
@@ -3079,6 +3079,6 @@ export default function AIFitWorldPrototype() {
       />
       {/* --- Toast notifications --- */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
-    </div>  
+    </div>
   );
 }
