@@ -1,6 +1,5 @@
 "use client";
 
-import type { Metadata } from "next";
 import ContactForm from "./ContactForm";
 import { THEME } from "@/lib/theme";
 import { Building2, MapPin, Mail, Phone } from "lucide-react";
@@ -9,18 +8,11 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import * as React from "react";
 import { useSession } from "next-auth/react";
-import { formatNumber } from "@/lib/tokens";
 import {
-  AccentButton,
-  Card,
-  GhostButton,
-  Pill,
-  Spinner,
   ToastContainer,
   type Toast,
   type ToastType,
 } from "@/components/ui";
-import { ArrowRight, Lock } from "lucide-react";
 
 
 export default function ContactPage() {
@@ -43,13 +35,6 @@ export default function ContactPage() {
 
   const removeToast = (id: string) => {
     setToasts((toasts) => toasts.filter((t) => t.id !== id));
-  };
-
-  const goTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
   };
 
   const handleOpenAuth = (mode: "signin" | "signup") => {
@@ -113,7 +98,7 @@ export default function ContactPage() {
               <li className="flex items-start gap-3">
                 <Building2 size={18} style={{ color: THEME.accent }} />
                 <div>
-                  <div className="font-medium">BREATHE FRESH LTD</div>
+                  <div className="font-medium">D, BREATHE FRESH LTD</div>
                   <div className="opacity-80">Company number 15954655</div>
                 </div>
               </li>
@@ -121,7 +106,7 @@ export default function ContactPage() {
               <li className="flex items-start gap-3">
                 <MapPin size={18} style={{ color: THEME.accent }} />
                 <div className="opacity-90">
-                  Dept 6157, 43 Owston Road, Carcroft, Doncaster, United Kingdom, DN6 8DA
+                  12 King St, Nottingham, United Kingdom, NG1 2AS
                 </div>
               </li>
 

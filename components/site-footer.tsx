@@ -1,7 +1,19 @@
-import Link from "next/link";
+import Image from "next/image";
 import { THEME } from "@/lib/theme";
 
-export default function SiteFooter() {
+interface SiteFooterProps {
+  onNavigate?: (page: string) => void;
+}
+
+export default function SiteFooter({ onNavigate }: SiteFooterProps) {
+  const handleNavigate = (page: string) => {
+    if (onNavigate) {
+      onNavigate(page);
+    } else {
+      window.location.href = `/${page}`;
+    }
+  };
+
   return (
     <footer
       className="border-t py-8 text-sm"
@@ -11,9 +23,11 @@ export default function SiteFooter() {
         {/* 1. Логотип */}
         <div className="space-y-2">
           <div className="flex items-center justify-center md:justify-start gap-3">
-            <img 
-              src="/images/logo.svg" 
-              alt="AIFitWorld Logo" 
+            <Image
+              src="/images/logo.svg"
+              alt="AIFitWorld Logo"
+              width={24}
+              height={24}
               className="h-6 w-6"
             />
             <div className="font-extrabold tracking-tight">
@@ -27,9 +41,9 @@ export default function SiteFooter() {
         <div>
           <div className="font-semibold mb-2">Company</div>
           <div className="opacity-80 space-y-1">
-            <div>BREATHE FRESH LTD</div>
+            <div>D, BREATHE FRESH LTD</div>
             <div>Company number: 15954655</div>
-            <div>Dept 6157 43 Owston Road, Carcroft, Doncaster,<br/> United Kingdom, DN6 8DA</div>
+            <div>12 King St, Nottingham, United Kingdom, NG1 2AS</div>
             <div>Email: <a href="mailto:info@aifitworld.co.uk" className="underline">info@aifitworld.co.uk</a></div>
             <div>Phone: +44 7418 604319</div>
           </div>
@@ -39,9 +53,9 @@ export default function SiteFooter() {
         <div>
           <div className="font-semibold mb-2">Useful</div>
           <ul className="text-sm space-y-1 opacity-85">
-            <li><Link href="/contact" className="hover:opacity-100">Contact Us</Link></li>
-            <li><Link href="/blog" className="hover:opacity-100">Blog</Link></li>
-            <li><Link href="/faq" className="hover:opacity-100">FAQ</Link></li>
+            <li><a href="/contact" onClick={(e) => { e.preventDefault(); handleNavigate('contact'); }} className="hover:opacity-100">Contact Us</a></li>
+            <li><a href="/blog" onClick={(e) => { e.preventDefault(); handleNavigate('blog'); }} className="hover:opacity-100">Blog</a></li>
+            <li><a href="/faq" onClick={(e) => { e.preventDefault(); handleNavigate('faq'); }} className="hover:opacity-100">FAQ</a></li>
           </ul>
         </div>
 
@@ -49,9 +63,9 @@ export default function SiteFooter() {
         <div>
           <div className="font-semibold mb-2">Policies</div>
           <ul className="text-sm space-y-1 opacity-85">
-            <li><Link href="/legal/refunds" className="hover:opacity-100">Refunds & Tokens</Link></li>
-            <li><Link href="/legal/privacy" className="hover:opacity-100">Privacy Policy</Link></li>
-            <li><Link href="/legal/terms" className="hover:opacity-100">Terms of Service</Link></li>
+            <li><a href="/legal/refunds" onClick={(e) => { e.preventDefault(); handleNavigate('refunds'); }} className="hover:opacity-100">Refunds & Tokens</a></li>
+            <li><a href="/legal/privacy" onClick={(e) => { e.preventDefault(); handleNavigate('privacy'); }} className="hover:opacity-100">Privacy Policy</a></li>
+            <li><a href="/legal/terms" onClick={(e) => { e.preventDefault(); handleNavigate('terms'); }} className="hover:opacity-100">Terms of Service</a></li>
           </ul>
         </div>
 
@@ -60,49 +74,61 @@ export default function SiteFooter() {
           <div className="font-semibold mb-2">Payment Methods</div>
           <div className="space-y-3">
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <img 
-                src="/images/visa-logo.svg" 
-                alt="Visa" 
+              <Image
+                src="/images/visa-logo.svg"
+                alt="Visa"
+                width={48}
+                height={24}
                 className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <span className="text-xs opacity-70">Visa</span>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <img 
-                src="/images/mastercard-logo.svg" 
-                alt="Mastercard" 
+              <Image
+                src="/images/mastercard-logo.svg"
+                alt="Mastercard"
+                width={48}
+                height={24}
                 className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <span className="text-xs opacity-70">Mastercard</span>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <img 
-                src="/images/Maestro_Logo.svg" 
-                alt="Maestro" 
+              <Image
+                src="/images/Maestro_Logo.svg"
+                alt="Maestro"
+                width={48}
+                height={24}
                 className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <span className="text-xs opacity-70">Maestro</span>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <img 
-                src="/images/American_Express_logo.svg" 
-                alt="American Express" 
+              <Image
+                src="/images/American_Express_logo.svg"
+                alt="American Express"
+                width={48}
+                height={24}
                 className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <span className="text-xs opacity-70">Amex</span>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <img 
-                src="/images/Apple_Pay_logo.svg" 
-                alt="Apple Pay" 
+              <Image
+                src="/images/Apple_Pay_logo.svg"
+                alt="Apple Pay"
+                width={48}
+                height={24}
                 className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <span className="text-xs opacity-70">Apple Pay</span>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <img 
-                src="/images/Google_Pay_Logo.svg" 
-                alt="Google Pay" 
+              <Image
+                src="/images/Google_Pay_Logo.svg"
+                alt="Google Pay"
+                width={48}
+                height={24}
                 className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <span className="text-xs opacity-70">Google Pay</span>
