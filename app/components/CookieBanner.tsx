@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { THEME } from "@/lib/theme";
 import { GhostButton, AccentButton, Card } from "@/app/components/ui";
 
 const STORAGE_KEY = "fa_cookie_consent_v1";

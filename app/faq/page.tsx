@@ -76,7 +76,7 @@ export default function FAQPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter onNavigate={handleNavigate} />
     </>
   );
 }

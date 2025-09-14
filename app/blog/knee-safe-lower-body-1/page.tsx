@@ -6,6 +6,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import * as React from "react";
+import Image from "next/image";
 
 // Малая локальная карточка, как в политиках
 function Card({ children }: { children: React.ReactNode }) {
@@ -78,9 +79,10 @@ export default function KneeSafeLowerBodyPage() {
 
         {/* Hero картинка 16:9 */}
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border" style={{ borderColor: THEME.cardBorder }}>
-          <img
+          <Image
             src="/images/at-home-setup.webp"
             alt="Home workout setup for knee-safe training"
+            layout="fill"
             className="w-full h-full object-cover"
           />
         </div>
@@ -181,7 +183,7 @@ export default function KneeSafeLowerBodyPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter onNavigate={handleNavigate} />
     </>
   );
 }

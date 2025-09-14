@@ -106,7 +106,7 @@ export default function ContactPage() {
               <li className="flex items-start gap-3">
                 <MapPin size={18} style={{ color: THEME.accent }} />
                 <div className="opacity-90">
-                  12 King St, Nottingham, United Kingdom, NG1 2AS
+                  12 King Street, Nottingham, England, NG1 2AS
                 </div>
               </li>
 

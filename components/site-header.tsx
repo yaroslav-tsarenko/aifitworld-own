@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { THEME } from "@/lib/theme";
 import { LogIn, UserPlus, Lock, Menu, X } from "lucide-react";
 import * as React from "react";
-import { formatNumber } from "@/lib/tokens";
+import { formatNumber as formatNumberLocal } from "@/lib/tokens";
 import { Skeleton } from "@/components/ui";
+import Image from "next/image";
 
 type Region = "EU" | "UK";
 
@@ -44,7 +44,8 @@ export default function SiteHeader({
   balance,
   balanceLoading,
   region,
-  setRegion
+  setRegion,
+  formatNumber: formatNumberProp,
 }: { 
   onOpenAuth: (mode: "signin" | "signup") => void;
   onNavigate: (page: string) => void;
@@ -52,6 +53,7 @@ export default function SiteHeader({
   balanceLoading?: boolean;
   region: Region;
   setRegion: (region: Region) => void;
+  formatNumber?: (n: number) => string;
 }) {
   const { data: session } = useSession();
   const isAuthed = !!session?.user?.email;
@@ -77,9 +79,11 @@ export default function SiteHeader({
           onClick={() => onNavigate("home")} 
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
-          <img 
+          <Image 
             src="/images/logo.svg" 
             alt="AIFitWorld Logo" 
+            width={24}
+            height={24}
             className="h-6 w-6"
           />
           <div className="font-extrabold tracking-tight">
@@ -126,8 +130,11 @@ export default function SiteHeader({
                 <Skeleton className="h-5 w-12" />
               ) : (
                 <>
-                  <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
-                    {formatNumber(balance ?? 0)} ◎
+                  <div
+                    className="text-sm font-semibold"
+                    style={{ color: THEME.accent }}
+                  >
+                    {(formatNumberProp || formatNumberLocal)(balance ?? 0)} ◎
                   </div>
                   <div className="text-xs opacity-60">tokens</div>
                 </>
@@ -176,8 +183,11 @@ export default function SiteHeader({
                   <Skeleton className="h-5 w-12" />
                 ) : (
                   <>
-                    <div className="text-sm font-semibold" style={{ color: THEME.accent }}>
-                      {formatNumber(balance ?? 0)} ◎
+                    <div
+                      className="text-sm font-semibold"
+                      style={{ color: THEME.accent }}
+                    >
+                      {(formatNumberProp || formatNumberLocal)(balance ?? 0)} ◎
                     </div>
                     <div className="text-xs opacity-60">tokens</div>
                   </>

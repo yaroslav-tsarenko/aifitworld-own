@@ -6,6 +6,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import * as React from "react";
+import Image from "next/image";
 
 function Card({ children, interactive = false }: { children: React.ReactNode; interactive?: boolean }) {
   return (
@@ -64,9 +65,10 @@ export default function BlogPage() {
           <Card interactive>
             {/* Картинка 4:3 */}
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border mb-3" style={{ borderColor: THEME.cardBorder }}>
-              <img
+              <Image
                 src="/images/athletes-box-squat-technique.webp"
                 alt="Home workout setup for knee-safe training"
+                layout="fill"
                 className="w-full h-full object-cover"
               />
               {/* Бейдж категории */}
@@ -93,9 +95,10 @@ export default function BlogPage() {
           <Card interactive>
             {/* Картинка 4:3 */}
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border mb-3" style={{ borderColor: THEME.cardBorder }}>
-              <img
+              <Image
                 src="/images/athletes-perfect-form.webp"
                 alt="Athletes demonstrating perfect form with resistance bands"
+                layout="fill"
                 className="w-full h-full object-cover"
               />
               {/* Бейдж категории */}
@@ -122,9 +125,10 @@ export default function BlogPage() {
           <Card interactive>
             {/* Картинка 4:3 */}
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border mb-3" style={{ borderColor: THEME.cardBorder }}>
-              <img
+              <Image
                 src="/images/trx-row-precision.webp"
                 alt="TRX row exercise demonstrating precision and form"
+                layout="fill"
                 className="w-full h-full object-cover"
               />
               {/* Бейдж категории */}
@@ -151,9 +155,10 @@ export default function BlogPage() {
           <Card interactive>
             {/* Картинка 4:3 */}
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border mb-3" style={{ borderColor: THEME.cardBorder }}>
-              <img
+              <Image
                 src="/images/powerful-glute-thrust.webp"
                 alt="Powerful glute thrust exercise demonstration"
+                layout="fill"
                 className="w-full h-full object-cover"
               />
               {/* Бейдж категории */}
@@ -178,7 +183,7 @@ export default function BlogPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter onNavigate={handleNavigate} />
     </>
   );
 }

@@ -8,7 +8,6 @@ import {
   Font,
   PDFViewer,
 } from "@react-pdf/renderer";
-import { THEME } from "@/lib/theme";
 
 // Регистрируем шрифты
 Font.register({
@@ -213,7 +212,7 @@ export function CoursePDF({ course }: CoursePDFProps) {
   };
 
   // Генерируем реалистичный контент для недель
-  const getWeekContent = (weekNumber: number, sessionsPerWeek: number) => {
+  const getWeekContent = (weekNumber: number) => {
     const exercises = [
       {
         warmup: [
@@ -385,7 +384,7 @@ export function CoursePDF({ course }: CoursePDFProps) {
                 <Text style={styles.weekTitle}>Week {i + 1}</Text>
                 
                 {Array.from({ length: options.sessionsPerWeek || 4 }, (_, j) => {
-                  const sessionContent = getWeekContent(i + 1, options.sessionsPerWeek || 4);
+                  const sessionContent = getWeekContent(i + 1);
                   return (
                     <View key={j} style={styles.sessionSection}>
                       <Text style={styles.sessionTitle}>Session {j + 1}</Text>

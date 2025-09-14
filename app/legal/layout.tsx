@@ -43,7 +43,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       
       <main className="mx-auto max-w-6xl px-4 py-8 md:py-12">{children}</main>
 
-      <SiteFooter />
+      <SiteFooter onNavigate={handleNavigate} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { THEME } from "@/lib/theme";
 import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { useLazyLoad } from "@/lib/hooks";
+import Image from "next/image";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -131,16 +132,18 @@ export function LazyImage({
   alt,
   className,
   ...props
-}: React.ImgHTMLAttributes<HTMLImageElement>) {
+}: React.ImgHTMLAttributes<HTMLImageElement> & { src: string }) {
   const [ref, isLoaded] = useLazyLoad();
 
   return (
-    <img
+    <Image
       ref={ref}
-      src={isLoaded ? src : undefined}
-      alt={alt}
+      src={isLoaded ? src : "/placeholder.png"}
+      alt={alt || ""}
       className={cn("lazy-load", isLoaded && "loaded", className)}
       {...props}
+      width={props.width ? Number(props.width) : undefined}
+      height={props.height ? Number(props.height) : undefined}
     />
   );
 }

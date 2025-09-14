@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     const pdfDir = join(process.cwd(), "public", "pdfs");
     try {
       mkdirSync(pdfDir, { recursive: true });
-    } catch (error) {
+    } catch {
       // Папка уже существует
     }
 

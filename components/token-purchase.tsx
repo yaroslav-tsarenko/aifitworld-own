@@ -5,11 +5,7 @@ import { STRIPE_PRODUCTS, StripeProduct } from '@/lib/stripe';
 import { getStripe } from '@/lib/stripe';
 import { THEME } from '@/lib/theme';
 
-interface TokenPurchaseProps {
-  onSuccess?: () => void;
-}
-
-export default function TokenPurchase({ onSuccess }: TokenPurchaseProps) {
+export default function TokenPurchase() {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handlePurchase = async (product: StripeProduct) => {

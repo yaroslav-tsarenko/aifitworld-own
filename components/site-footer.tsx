@@ -43,7 +43,7 @@ export default function SiteFooter({ onNavigate }: SiteFooterProps) {
           <div className="opacity-80 space-y-1">
             <div>D, BREATHE FRESH LTD</div>
             <div>Company number: 15954655</div>
-            <div>12 King St, Nottingham, United Kingdom, NG1 2AS</div>
+            <div>12 King Street, Nottingham, England, NG1 2AS</div>
             <div>Email: <a href="mailto:info@aifitworld.co.uk" className="underline">info@aifitworld.co.uk</a></div>
             <div>Phone: +44 7418 604319</div>
           </div>
