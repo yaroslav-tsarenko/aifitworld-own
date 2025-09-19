@@ -1,18 +1,18 @@
 "use client";
 
-import ContactForm from "./ContactForm";
-import { THEME } from "@/lib/theme";
-import { Building2, MapPin, Mail, Phone } from "lucide-react";
-import Link from "next/link";
-import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
-import * as React from "react";
-import { useSession } from "next-auth/react";
+import SiteHeader from "@/components/site-header";
 import {
   ToastContainer,
   type Toast,
   type ToastType,
 } from "@/components/ui";
+import { THEME } from "@/lib/theme";
+import { Building2, Mail, MapPin, Phone } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import * as React from "react";
+import ContactForm from "./ContactForm";
 
 
 export default function ContactPage() {
@@ -77,7 +77,7 @@ export default function ContactPage() {
         balance={balance}
         balanceLoading={balanceLoading}
       />
-      
+
       <main className="mx-auto max-w-5xl px-4 py-10 md:py-14">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
           Contact Us
@@ -98,7 +98,7 @@ export default function ContactPage() {
               <li className="flex items-start gap-3">
                 <Building2 size={18} style={{ color: THEME.accent }} />
                 <div>
-                  <div className="font-medium">D, BREATHE FRESH LTD</div>
+                  <div className="font-medium">BREATHE FRESH LTD</div>
                   <div className="opacity-80">Company number 15954655</div>
                 </div>
               </li>
