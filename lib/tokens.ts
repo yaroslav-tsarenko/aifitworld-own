@@ -162,7 +162,7 @@ export function calcFullCourseTokens(opts: GeneratorOpts) {
     pdf = "none",
     images = 0,
     videoPlan = false,
-    gender = "male",
+    gender: _gender = "male",
     workoutTypes = [],
     targetMuscles = [],
   } = opts;

@@ -62,8 +62,8 @@ export default function TokenPurchase() {
       setSuccess(`Successfully added ${data.tokensAdded.toLocaleString()} tokens! Your new balance is ${data.newBalance.toLocaleString()} tokens.`);
       
       // Обновляем баланс в родительском компоненте (если есть callback)
-      if (typeof window !== 'undefined' && (window as any).refreshBalance) {
-        (window as any).refreshBalance();
+      if (typeof window !== 'undefined' && (window as unknown as { refreshBalance?: () => void }).refreshBalance) {
+        (window as unknown as { refreshBalance: () => void }).refreshBalance();
       }
 
     } catch (error) {
