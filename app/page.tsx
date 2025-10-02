@@ -2648,47 +2648,22 @@ export default function AIFitWorldPrototype() {
     setToasts(prev => [...prev, newToast]);
   }, []);
 
-  // Обработка URL параметров для Stripe Checkout
+  // Обработка URL параметров для успешных операций
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const success = urlParams.get('success');
-      const canceled = urlParams.get('canceled');
-      const sessionId = urlParams.get('session_id');
+      const tokens = urlParams.get('tokens');
 
-      if (success === 'true' && sessionId) {
-        // Получаем информацию о сессии для показа деталей
-        fetch(`/api/stripe/session-info?sessionId=${sessionId}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.success && data.session) {
-              const tokens = data.session.metadata?.tokens || 'Unknown';
-              const amount = data.session.metadata?.amount || 'Unknown';
-              const currency = data.session.currency === 'gbp' ? 'GBP' : 'EUR';
-              addToast("success", "Payment Successful!", `Added ${tokens} tokens (${amount} ${currency}) to your account!`);
-            } else {
-              addToast("success", "Payment Successful!", "Your tokens have been added to your account. Welcome back!");
-            }
-          })
-          .catch(() => {
-            addToast("success", "Payment Successful!", "Your tokens have been added to your account. Welcome back!");
-          });
-
-        // Показываем дополнительное уведомление о возможной задержке
-        setTimeout(() => {
-          addToast("info", "Processing Payment", "If you don't see your tokens immediately, they should appear within a few minutes. You can also refresh the page.");
-        }, 2000);
-
+      if (success === 'true' && tokens) {
+        addToast("success", "Tokens Added!", `Successfully added ${tokens} tokens to your account!`);
+        
         // Очищаем URL параметры
         window.history.replaceState({}, document.title, window.location.pathname);
         // Перезагружаем баланс
         void loadBalance();
         // Автоматически переключаемся на Dashboard
         setActiveStable("dashboard");
-      } else if (canceled === 'true') {
-        addToast("info", "Payment Canceled", "Your payment was canceled. You can try again anytime.");
-        // Очищаем URL параметры
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
   }, [addToast, loadBalance, setActiveStable]);
@@ -2759,36 +2734,43 @@ export default function AIFitWorldPrototype() {
 
       setTopUpLoading(true);
       try {
-        console.log("Creating Stripe checkout session");
-        const res = await fetch("/api/stripe/create-checkout-session", {
+        console.log("Processing token topup");
+        
+        // Определяем пакет на основе суммы
+        let packageId: "starter" | "builder" | "pro" | "custom" = "custom";
+        if (amountCurrency <= 10) packageId = "starter";
+        else if (amountCurrency <= 20) packageId = "builder";
+        else if (amountCurrency <= 40) packageId = "pro";
+        
+        const res = await fetch("/api/tokens/topup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: amountCurrency, region, source }),
+          body: JSON.stringify({ 
+            packageId: packageId.toUpperCase(),
+            currency: region === "UK" ? "GBP" : "EUR"
+          }),
         });
 
         const data = await res.json().catch(() => ({}));
-        console.log("Stripe API response:", { status: res.status, data });
+        console.log("Topup API response:", { status: res.status, data });
         
         if (!res.ok) {
-          throw new Error(data?.error ?? "Failed to create checkout session");
+          throw new Error(data?.error ?? "Failed to process token topup");
         }
 
-        // Перенаправляем на Stripe Checkout
-        if (data.url) {
-          console.log("Redirecting to Stripe Checkout:", data.url);
-          window.location.href = data.url;
-        } else {
-          throw new Error("No checkout URL received");
-        }
+        addToast("success", "Tokens Added!", `Successfully added ${data.tokensAdded.toLocaleString()} tokens! Your new balance is ${data.newBalance.toLocaleString()} tokens.`);
+        
+        // Перезагружаем баланс
+        void loadBalance();
         
       } catch (error) {
         console.error("Top-up failed:", error);
-        addToast("error", "Top-up Failed", error instanceof Error ? error.message : "Failed to create checkout session");
+        addToast("error", "Top-up Failed", error instanceof Error ? error.message : "Failed to process token topup");
       } finally {
         setTopUpLoading(false);
       }
     },
-    [isAuthed, openAuth, region, addToast]
+    [isAuthed, openAuth, region, addToast, loadBalance]
   );
   
   const handleGeneratePreview = React.useCallback(async (opts: GeneratorOpts) => {

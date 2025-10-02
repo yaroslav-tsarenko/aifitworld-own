@@ -1,7 +1,11 @@
 // app/legal/privacy/page.tsx
 import React from "react";
+import { Metadata } from "next";
 
-export const metadata = { title: "Privacy Policy — AIFitWorld" };
+export const metadata: Metadata = {
+  title: "Privacy Policy — AIFitWorld",
+  description: "Privacy policy and data handling practices for AIFitWorld",
+};
 
 const LAST_UPDATED = "2025-08-16";
 

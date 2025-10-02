@@ -1,6 +1,10 @@
 import { THEME } from "@/lib/theme";
+import { Metadata } from "next";
 
-export const metadata = { title: "Terms of Service — AIFitWorld" };
+export const metadata: Metadata = {
+  title: "Terms of Service — AIFitWorld",
+  description: "Terms of service and usage policies for AIFitWorld",
+};
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
