@@ -236,13 +236,13 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
   const approxWeeks = tokensToApproxWeeks(Math.max(0, Math.round(customNumber * TOKENS_PER_UNIT)));
 
   const handleBuy = async (tier: Tier) => {
-    if (requireAuth) return openAuth("signup");
+    if (_requireAuth) return _openAuth("signup");
     const src = tier.name.toLowerCase() as "starter" | "builder" | "pro";
     await onTierBuy(tier.price, src);
   };
 
   const handleCustom = async () => {
-    if (requireAuth) return openAuth("signup");
+    if (_requireAuth) return _openAuth("signup");
     if (!Number.isFinite(customNumber) || customNumber <= 0) return;
     await onCustomTopUp(customNumber);
   };
@@ -835,7 +835,7 @@ function Generator({
 
 /* ============================== Simple visuals ============================== */
 
-function Consultations({ region, requireAuth, openAuth }: { region: Region; requireAuth: boolean; openAuth: () => void }) {
+function Consultations({ region: _region, requireAuth: _requireAuth, openAuth: _openAuth }: { region: Region; requireAuth: boolean; openAuth: () => void }) {
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-semibold">Consultations</h3>
@@ -2384,7 +2384,7 @@ function AuthModal({
   onClose,
   onRegister,
   onSignIn,
-  onAuthed,
+  onAuthed: _onAuthed,
 }: {
   open: boolean;
   mode: "signup" | "signin";

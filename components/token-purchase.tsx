@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { THEME } from '@/lib/theme';
-import { TOKEN_PACKAGES, TokenPackageId, Currency, formatPrice } from '@/lib/payment';
+import { TokenPackageId, Currency, formatPrice } from '@/lib/payment';
 
 interface TokenPackage {
   id: TokenPackageId;
@@ -30,7 +30,7 @@ export default function TokenPurchase() {
         } else {
           setError('Failed to load token packages');
         }
-      } catch (err) {
+      } catch (_err) {
         setError('Failed to load token packages');
       }
     };

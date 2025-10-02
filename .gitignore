@@ -21,6 +21,8 @@ build/
 .idea/
 *.swp
 *.swo
+.vscode/extensions/
+.vscode/extensions/**
 
 # OS
 .DS_Store
