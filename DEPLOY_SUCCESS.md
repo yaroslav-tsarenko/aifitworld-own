@@ -16,7 +16,7 @@
   - `app/legal/privacy/page.tsx` - добавили недостающие импорты
   - `app/legal/refunds/page.tsx` - сохранили обновленное название
   - `app/legal/terms/page.tsx` - сохранили обновленное название
-- ✅ Восстановили удаленные файлы Stripe (`webhook/route.ts`, `stripe-server.ts`)
+ 
 
 ### 3. **Успешный пуш на GitHub**
 - ✅ Завершили слияние с коммитом merge
