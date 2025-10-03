@@ -35,9 +35,9 @@ export default function TermsPage() {
       <Card>
         <h2 className="text-lg font-semibold mb-3">1. Introduction</h2>
         <div className="space-y-3 opacity-90 text-sm">
-          <p><strong>1.1.</strong> These Terms and Conditions ("Terms") govern your access to and use of the AIFitWorld website, app and related services (the "Service") operated by BREATHE FRESH LTD (Company No. 15954655; registered address: Dept 6157 43 Owston Road, Carcroft, Doncaster, United Kingdom, DN6 8DA) ("we", "us", "our").</p>
+          <p><strong>1.1.</strong> These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of the AIFitWorld website, app and related services (the &quot;Service&quot;) operated by BREATHE FRESH LTD (Company No. 15954655; registered address: Dept 6157 43 Owston Road, Carcroft, Doncaster, United Kingdom, DN6 8DA) (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;).</p>
           <p><strong>1.2.</strong> By accessing or using the Service, creating an account, purchasing or redeeming tokens, or generating/ downloading any content, you agree to be bound by these Terms. If you do not agree, you must not use the Service.</p>
-          <p><strong>1.3.</strong> These Terms form a legally binding agreement between you ("you", "User", "Customer") and BREATHE FRESH LTD.</p>
+          <p><strong>1.3.</strong> These Terms form a legally binding agreement between you (&quot;you&quot;, &quot;User&quot;, &quot;Customer&quot;) and BREATHE FRESH LTD.</p>
         </div>
       </Card>
 
@@ -48,7 +48,7 @@ export default function TermsPage() {
           <p><strong>• Account</strong> – your user account on the Service.</p>
           <p><strong>• Training Plan(s)</strong> – AI-assisted fitness content provided via the Service, including workouts, schedules, exercise routines, guidance, checklists and similar digital materials (e.g., previews, on-screen content, PDF/DOCX exports).</p>
           <p><strong>• Preview</strong> – a low-cost/low-token generation step that lets you view a plan outline before committing to a full course or export.</p>
-          <p><strong>• Tokens</strong> – the Service's internal unit used to access paid features (e.g., previews, full course generation, PDF export). Tokens are not money, e-money, securities or investments.</p>
+          <p><strong>• Tokens</strong> – the Service&apos;s internal unit used to access paid features (e.g., previews, full course generation, PDF export). Tokens are not money, e-money, securities or investments.</p>
           <p><strong>• Services/Products</strong> – any goods or services offered via the Service, including Training Plans and add-ons (where available).</p>
         </div>
       </Card>
@@ -139,7 +139,7 @@ export default function TermsPage() {
           <h2 className="text-lg font-semibold mb-3">10. Warranties & Disclaimers</h2>
           <div className="space-y-3 opacity-90 text-sm">
             <p><strong>10.1.</strong> We warrant we have rights to grant the licences described.</p>
-            <p><strong>10.2.</strong> Except as explicitly stated, the Service and content are provided "as is" and "as available" without implied warranties of fitness for a particular purpose, satisfactory quality, accuracy or completeness.</p>
+            <p><strong>10.2.</strong> Except as explicitly stated, the Service and content are provided &quot;as is&quot; and &quot;as available&quot; without implied warranties of fitness for a particular purpose, satisfactory quality, accuracy or completeness.</p>
             <p><strong>10.3.</strong> Results vary. We do not guarantee specific outcomes (e.g., weight loss, strength gains, performance metrics).</p>
           </div>
         </Card>

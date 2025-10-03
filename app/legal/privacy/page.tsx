@@ -51,7 +51,7 @@ export default function PrivacyPage() {
       <Card>
         <h2 className="text-lg font-semibold mb-3">1. Introduction</h2>
         <p className="opacity-90 text-sm">
-          We respect your privacy. This Privacy Policy explains what personal data we collect, how we use it, how long we keep it, with whom we share it, and how you can exercise your rights. It applies when you use the AIFitWorld website, app and services (the "Service").
+          We respect your privacy. This Privacy Policy explains what personal data we collect, how we use it, how long we keep it, with whom we share it, &quot;and how you can exercise your rights. It applies when you use the AIFitWorld website, app and services (the &quot;Service&quot;).
         </p>
       </Card>
 

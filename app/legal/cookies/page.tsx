@@ -47,7 +47,7 @@ export default function CookiesPage() {
       <Card>
         <h2 className="text-lg font-semibold mb-3">1. Overview</h2>
         <p className="opacity-90 text-sm">
-          This Cookies Policy explains how AIFitWorld (operated by BREATHE FRESH LTD, "we", "us", "our") uses cookies and similar technologies (including localStorage, sessionStorage, pixels and SDKs) on the Service. It complements our Privacy Policy. Through the banner and settings, you can accept, decline, or customise non-essential cookies as described below.
+          This Cookies Policy explains how AIFitWorld (operated by BREATHE FRESH LTD, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) uses cookies and similar technologies (including localStorage, sessionStorage, pixels and SDKs) on the Service. It complements our Privacy Policy. Through the banner and settings, you can accept, decline, or customise non-essential cookies as described below.
         </p>
       </Card>
 
@@ -177,7 +177,7 @@ export default function CookiesPage() {
         <Card>
           <h2 className="text-lg font-semibold mb-3">9. Do Not Track</h2>
           <p className="opacity-90 text-sm">
-            Some browsers send a "Do Not Track" (DNT) signal. There is no common industry standard for DNT; however, where feasible we treat DNT as an opt-out of marketing cookies unless you later provide consent.
+            Some browsers send a &quot;Do Not Track&quot; (DNT) signal. There is no common industry standard for DNT; however, where feasible we treat DNT as an opt-out of marketing cookies unless you later provide consent.
           </p>
         </Card>
 

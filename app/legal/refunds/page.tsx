@@ -48,11 +48,11 @@ export default function RefundsPage() {
         <h2 className="text-lg font-semibold mb-3">1. Summary (customer-facing)</h2>
         <div className="space-y-3 opacity-90 text-sm">
           <p>Refund requests are handled under this Policy and applicable UK consumer law.</p>
-          <p><strong>Typical processing time after approval:</strong> 5–10 business days (your bank's timelines may vary).</p>
+          <p><strong>Typical processing time after approval:</strong> 5–10 business days (your bank&apos;s timelines may vary).</p>
           <p>A refund will not exceed the original amount paid for the Tokens/transaction.</p>
           <p><strong>Spent Tokens</strong> (used for previews, full course generation, or PDF exports) are non-refundable, except where the supplied digital Service is defective, materially not as described, or not supplied as contracted.</p>
           <p>Tokens are account-bound, non-transferable and are not exchangeable for cash, except where required by law.</p>
-          <p><strong>Promotional/bonus Tokens</strong> are non-refundable unless the promotion's terms expressly state otherwise.</p>
+          <p><strong>Promotional/bonus Tokens</strong> are non-refundable unless the promotion&apos;s terms expressly state otherwise.</p>
           <p><strong>Submit requests to:</strong> info@aifitworld.co.uk with your order reference and details.</p>
           <p>This Policy may be updated; material changes will be notified as in section 8.</p>
           <p>If you consented at checkout to immediate supply of digital content (e.g., downloadable Training Plan) and then accessed/downloaded it, you may lose your statutory right to cancel for that transaction (see 4.7).</p>
@@ -157,7 +157,7 @@ export default function RefundsPage() {
         <Card>
           <h2 className="text-lg font-semibold mb-3">9. Record keeping and retention</h2>
           <p className="opacity-90 text-sm">
-            We retain records necessary to assess refund decisions — including order IDs, Token purchase/redemption history, checkout acknowledgements (including any "immediate supply" consent text), timestamps, IP and user-agent — for at least 24 months, and up to 6 years for disputed or enterprise transactions, in line with our Privacy Policy and applicable data protection law.
+            We retain records necessary to assess refund decisions — including order IDs, Token purchase/redemption history, checkout acknowledgements (including any &quot;immediate supply&quot; consent text), timestamps, IP and user-agent — for at least 24 months, and up to 6 years for disputed or enterprise transactions, in line with our Privacy Policy and applicable data protection law.
           </p>
         </Card>
       </div>
