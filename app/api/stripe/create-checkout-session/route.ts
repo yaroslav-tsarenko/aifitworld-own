@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { stripe } from '@/lib/stripe-server';
+import type Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,31 +19,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
-    // Calculate tokens based on currency and amount
+    // Normalize currency and calculate tokens
+    const rawCurrency = (currency ?? 'gbp').toString().toLowerCase();
+    const allowedCurrencies = ['gbp', 'eur', 'usd'] as const;
+    const normalizedCurrency = (allowedCurrencies.includes(rawCurrency as any)
+      ? (rawCurrency as typeof allowedCurrencies[number])
+      : 'gbp') as Stripe.Checkout.SessionCreateParams.LineItem.PriceData.Currency;
+
     let tokens = 0;
-    if (currency === 'gbp') {
+    if (normalizedCurrency === 'gbp') {
       tokens = Math.floor(amount * 100); // £1 = 100 tokens
-    } else if (currency === 'eur') {
+    } else if (normalizedCurrency === 'eur') {
       tokens = Math.floor(amount * 85); // €1 = 85 tokens
-    } else if (currency === 'usd') {
+    } else if (normalizedCurrency === 'usd') {
       tokens = Math.floor(amount * 80); // $1 = 80 tokens
     }
 
     // Create Stripe checkout session (Stripe v2024-12-18 params)
     const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.aifitworld.co.uk';
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const params: Stripe.Checkout.SessionCreateParams = {
       mode: 'payment',
-      // Let Stripe determine available methods
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
-            currency: currency.toLowerCase(),
+            currency: normalizedCurrency,
             product_data: {
               name: productName || `${tokens} Tokens`,
               description: `Token package for AIFitWorld`,
             },
-            unit_amount: Math.floor(amount * 100), // Convert minor units
+            unit_amount: Math.floor(amount * 100), // Convert to minor units
           },
           quantity: 1,
         },
@@ -53,9 +59,11 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: session.user.id,
         tokens: tokens.toString(),
-        currency: currency.toLowerCase(),
+        currency: normalizedCurrency,
       },
-    });
+    };
+
+    const checkoutSession = await stripe.checkout.sessions.create(params);
 
     return NextResponse.json({ 
       checkoutUrl: checkoutSession.url,
