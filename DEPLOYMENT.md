@@ -4,7 +4,6 @@
 
 - ✅ GitHub account with `aifit` repository
 - ✅ Vercel account (free tier available)
-- ✅ Stripe account with API keys
 - ✅ OpenAI API key
 - ✅ Production database (PostgreSQL recommended)
 
@@ -63,11 +62,6 @@ DATABASE_URL=your_production_postgresql_url
 NEXTAUTH_SECRET=your_random_secret_string
 NEXTAUTH_URL=https://your-domain.vercel.app
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_..._or_sk_live_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_..._or_pk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
 # OpenAI
 OPENAI_API_KEY=sk-...
 
@@ -81,27 +75,13 @@ BLOB_READ_WRITE_TOKEN=your_blob_token
 2. **Дождитесь завершения сборки** (обычно 2-5 минут)
 3. **Скопируйте URL** вашего сайта (например: `https://aifit-abc123.vercel.app`)
 
-### 6. **Update Stripe Webhook**
-
-1. **Откройте [Stripe Dashboard](https://dashboard.stripe.com)**
-2. **Перейдите в Developers → Webhooks**
-3. **Найдите ваш webhook**
-4. **Нажмите на него для редактирования**
-5. **Обновите Endpoint URL:**
-   ```
-   https://your-domain.vercel.app/api/stripe/webhook
-   ```
-6. **Сохраните изменения**
-7. **Нажмите "Send test webhook"** для проверки
-
-### 7. **Test Deployment**
+### 6. **Test Deployment**
 
 1. **Откройте ваш сайт** по URL от Vercel
 2. **Проверьте основные функции:**
    - Регистрация/вход
    - Генерация preview
-   - Покупка токенов через Stripe
-3. **Проверьте webhook** в Stripe Dashboard
+   - Пополнение токенов
 
 ## 🔧 Troubleshooting
 
@@ -126,12 +106,6 @@ npm run build
 - Убедитесь, что база данных доступна из интернета
 - Проверьте firewall настройки
 
-### **Stripe Webhook**
-
-- Проверьте URL webhook в Stripe
-- Убедитесь, что webhook активен
-- Проверьте логи в Vercel Functions
-
 ## 📱 Post-Deployment
 
 ### **Custom Domain (Optional)**
@@ -144,7 +118,6 @@ npm run build
 ### **Monitoring**
 
 - **Vercel Analytics** - для отслеживания производительности
-- **Stripe Dashboard** - для мониторинга платежей
 - **Vercel Functions Logs** - для отладки API
 
 ### **Updates**
@@ -162,9 +135,7 @@ git push origin main
 
 - ✅ Сайт доступен по URL от Vercel
 - ✅ Регистрация и вход работают
-- ✅ Stripe Checkout открывается
-- ✅ Webhook получает события от Stripe
-- ✅ Токены добавляются после оплаты
+- ✅ Пополнение токенов работает
 - ✅ Генерация курсов работает
 
 ## 🆘 Support
@@ -172,9 +143,8 @@ git push origin main
 Если возникли проблемы:
 
 1. **Проверьте логи** в Vercel Dashboard
-2. **Посмотрите Stripe webhook events**
-3. **Проверьте переменные окружения**
-4. **Создайте issue** в GitHub репозитории
+2. **Проверьте переменные окружения**
+3. **Создайте issue** в GitHub репозитории
 
 ---
 

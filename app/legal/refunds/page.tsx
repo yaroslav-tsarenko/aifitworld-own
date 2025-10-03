@@ -1,6 +1,10 @@
 import { THEME } from "@/lib/theme";
+import { Metadata } from "next";
 
-export const metadata = { title: "Refund & Returns Policy — AIFitWorld" };
+export const metadata: Metadata = {
+  title: "Refund & Returns Policy — AIFitWorld",
+  description: "Refund policy and token system information for AIFitWorld",
+};
 
 function Card({ children }: { children: React.ReactNode }) {
   return (

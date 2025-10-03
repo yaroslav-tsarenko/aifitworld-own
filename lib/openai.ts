@@ -217,7 +217,7 @@ function buildAdvancedImagePrompt(request: FitnessContentRequest, imageType: str
 }
 
 // Промпт для HERO/ACTION изображений (16:9)
-function buildHeroPrompt(gender: string, workoutType: string, exercise: string, location: string, equipment: string, injurySafe: boolean): string {
+function buildHeroPrompt(gender: string, workoutType: string, exercise: string, location: string, equipment: string, _injurySafe: boolean): string {
   let prompt = `Professional fitness photography: A ${gender} person in athletic wear`;
   prompt += ` in a clean ${location} environment. `;
   prompt += `Equipment visible: ${equipment}. `;
@@ -230,7 +230,7 @@ function buildHeroPrompt(gender: string, workoutType: string, exercise: string, 
 }
 
 // Промпт для TECHNIQUE CARD изображений (4:3)
-function buildTechniquePrompt(gender: string, exercise: string, muscle: string, injurySafe: boolean): string {
+function buildTechniquePrompt(gender: string, _exercise: string, _muscle: string, _injurySafe: boolean): string {
   let prompt = `Studio fitness photography: ${gender} person in athletic wear`;
   prompt += ` in a clean studio environment. `;
   prompt += `Background: neutral studio background with natural lighting. `;
@@ -242,7 +242,7 @@ function buildTechniquePrompt(gender: string, exercise: string, muscle: string, 
 }
 
 // Промпт для MACRO/DETAIL изображений (3:2)
-function buildMacroPrompt(equipment: string): string {
+function buildMacroPrompt(_equipment: string): string {
   let prompt = `Close-up fitness photography: fitness equipment in a clean setting`;
   prompt += ` with natural lighting and clean composition. `;
   prompt += `Style: detail photography, focus on equipment. `;

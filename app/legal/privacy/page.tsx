@@ -1,8 +1,12 @@
 // app/legal/privacy/page.tsx
 import React from "react";
+import { Metadata } from "next";
 import { THEME } from "@/lib/theme";
 
-export const metadata = { title: "Privacy Policy — AIFitWorld" };
+export const metadata: Metadata = {
+  title: "Privacy Policy — AIFitWorld",
+  description: "Privacy policy and data handling practices for AIFitWorld",
+};
 
 const EFFECTIVE_DATE = "12 August 2025";
 

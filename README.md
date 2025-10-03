@@ -34,6 +34,7 @@ AIFitWorld is an AI-powered fitness application that generates personalized work
 - **Authentication**: NextAuth.js
 - **Database**: SQLite (development), PostgreSQL (production)
 - **Styling**: Custom theme system with CSS variables
+- **Payments**: Flexible payment system (ready for integration)
 
 ## 🚀 Getting Started
 
@@ -106,18 +107,10 @@ AIFitWorld is an AI-powered fitness application that generates personalized work
    DATABASE_URL=your_production_database_url
    NEXTAUTH_SECRET=your_nextauth_secret
    NEXTAUTH_URL=https://your-domain.vercel.app
-   STRIPE_SECRET_KEY=your_stripe_secret_key
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
    OPENAI_API_KEY=your_openai_api_key
    ```
 
-### 4. **Update Stripe Webhook**
-   - Go to Stripe Dashboard → Webhooks
-   - Update webhook URL to: `https://your-domain.vercel.app/api/stripe/webhook`
-   - Test webhook delivery
-
-### 5. **Deploy**
+### 4. **Deploy**
    - Vercel will automatically deploy on every push to main
    - Check deployment status in Vercel dashboard
 

@@ -5,7 +5,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import {
   Dumbbell, Wallet, Sparkles, ShieldAlert, Timer, FileDown, ArrowRight, ChevronRight, Settings2,
   Video, Image as ImageIcon, Info, Lock, LogIn, UserPlus, X, ChevronLeft, Mail, Quote,
-  Building2, MapPin, Phone, Eye, RefreshCw, FileText
+  Eye, RefreshCw
 } from "lucide-react";
 
 
@@ -25,7 +25,6 @@ import {
 
 import type { GeneratorOpts } from "@/lib/tokens";
 import { formatNumber } from "@/lib/tokens";
-import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import { ToastContainer, Toast, ToastType } from "@/components/ui";
@@ -64,16 +63,7 @@ type NavItem = {
   protected?: boolean;
 };
 
-type AuthMode = "signin" | "signup";
 type NavId = "home" | "dashboard" | "generator" | "pricing" | "consultations" | "blog" | "faq" | "contact";
-
-type HistoryItem = {
-  id: string;
-  type: "topup" | "spend";
-  amount: number;              // в токенах (+ для пополнений, - для списаний)
-  createdAt: string;           // ISO
-  meta: Record<string, unknown> | null;            // { money, currency, source } или null
-};
 
 const NAV: NavItem[] = [
   { id: "dashboard",     label: "Dashboard",     protected: true },
@@ -208,49 +198,7 @@ function GhostButton({
   );
 }
 
-function WalletChip({ balance }: { balance: number }) {
-  return (
-    <div
-      className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm"
-      style={{ background: "#19191f", border: `1px solid ${THEME.cardBorder}` }}
-    >
-      <Wallet size={16} className="opacity-80" />
-      <span className="font-semibold">◎ {formatNumber(balance)}</span>
-    </div>
-  );
-}
 
-function RegionToggle({
-  region,
-  onChange,
-}: {
-  region: Region;
-  onChange: (r: Region) => void;
-}) {
-  return (
-    <div
-      className="inline-flex rounded-lg overflow-hidden border"
-      style={{ borderColor: THEME.cardBorder }}
-    >
-      {(["EU", "UK"] as Region[]).map((r: Region) => (
-        <button
-          key={r}
-          onClick={() => onChange(r)}
-          className={cn(
-            "px-3 py-2 text-xs md:text-sm",
-            region === r ? "font-semibold" : "opacity-60"
-          )}
-          style={{
-            background: region === r ? THEME.accent : "transparent",
-            color: region === r ? "#0E0E10" : THEME.text,
-          }}
-        >
-          {r === "EU" ? "EUR" : "GBP"}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 /* ============================== Pricing ============================== */
 
@@ -273,7 +221,7 @@ type Tier = {
   bonus?: string; // optional
 };
 
-function Pricing({ region, requireAuth, openAuth, onCustomTopUp, onTierBuy, loading }: PricingProps) {
+function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCustomTopUp, onTierBuy, loading }: PricingProps) {
   const isUK = region === "UK";
   const symbol = isUK ? "£" : "€";
 
@@ -288,13 +236,13 @@ function Pricing({ region, requireAuth, openAuth, onCustomTopUp, onTierBuy, load
   const approxWeeks = tokensToApproxWeeks(Math.max(0, Math.round(customNumber * TOKENS_PER_UNIT)));
 
   const handleBuy = async (tier: Tier) => {
-    if (requireAuth) return openAuth("signup");
+    if (_requireAuth) return _openAuth("signup");
     const src = tier.name.toLowerCase() as "starter" | "builder" | "pro";
     await onTierBuy(tier.price, src);
   };
 
   const handleCustom = async () => {
-    if (requireAuth) return openAuth("signup");
+    if (_requireAuth) return _openAuth("signup");
     if (!Number.isFinite(customNumber) || customNumber <= 0) return;
     await onCustomTopUp(customNumber);
   };
@@ -887,7 +835,7 @@ function Generator({
 
 /* ============================== Simple visuals ============================== */
 
-function Consultations({ region, requireAuth, openAuth }: { region: Region; requireAuth: boolean; openAuth: () => void }) {
+function Consultations({ region: _region, requireAuth: _requireAuth, openAuth: _openAuth }: { region: Region; requireAuth: boolean; openAuth: () => void }) {
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-semibold">Consultations</h3>
@@ -903,28 +851,6 @@ function Consultations({ region, requireAuth, openAuth }: { region: Region; requ
   );
 }
 
-function ImagePlaceholder({ label = "Image", aspect = "aspect-[16/10]" }: { label?: string; aspect?: string }) {
-  return (
-    <div
-      className={cn("relative w-full overflow-hidden rounded-2xl border", aspect)}
-      style={{ borderColor: THEME.cardBorder }}
-    >
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            `radial-gradient(60% 80% at 70% 40%, rgba(255,214,10,0.14) 0%, rgba(255,214,10,0.05) 30%, transparent 60%), linear-gradient(180deg, rgba(20,20,24,0.9), rgba(20,20,24,0.9))`,
-        }}
-      />
-      <div className="absolute inset-0 grid place-items-center text-center p-6">
-        <div>
-          <div className="text-lg font-semibold">{label}</div>
-          <div className="text-xs opacity-70">Sora visual goes here</div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function WhyChooseUsMosaic() {
   const items = [
@@ -2316,7 +2242,7 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
                             <div><strong>Images:</strong> {options.imageCount || 'N/A'}</div>
                           </div>
                         );
-                      } catch (error) {
+                      } catch (_error) {
                         return <div style={{ color: '#ef4444' }}>Failed to parse course options</div>;
                       }
                     })()}
@@ -2458,7 +2384,7 @@ function AuthModal({
   onClose,
   onRegister,
   onSignIn,
-  onAuthed,
+  onAuthed: _onAuthed,
 }: {
   open: boolean;
   mode: "signup" | "signin";
@@ -2551,10 +2477,10 @@ export default function AIFitWorldPrototype() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("signup");
 
-  const openAuth = (mode: AuthMode = "signup") => {
+  const openAuth = React.useCallback((mode: AuthMode = "signup") => {
     setAuthMode(mode);
     setAuthOpen(true);
-  };
+  }, []);
 
   async function handleRegister(email: string, password: string) {
     const r = await fetch("/api/auth/register", {
@@ -2637,7 +2563,7 @@ export default function AIFitWorldPrototype() {
     return spendTokens(REGEN_DAY, "regen_day");
   }, [spendTokens]);
 
-  const onRegenerateWeek = React.useCallback(() => {
+  const _onRegenerateWeek = React.useCallback(() => {
     return spendTokens(REGEN_WEEK, "regen_week");
   }, [spendTokens]);
 
@@ -2648,47 +2574,22 @@ export default function AIFitWorldPrototype() {
     setToasts(prev => [...prev, newToast]);
   }, []);
 
-  // Обработка URL параметров для Stripe Checkout
+  // Обработка URL параметров для успешных операций
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const success = urlParams.get('success');
-      const canceled = urlParams.get('canceled');
-      const sessionId = urlParams.get('session_id');
+      const tokens = urlParams.get('tokens');
 
-      if (success === 'true' && sessionId) {
-        // Получаем информацию о сессии для показа деталей
-        fetch(`/api/stripe/session-info?sessionId=${sessionId}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.success && data.session) {
-              const tokens = data.session.metadata?.tokens || 'Unknown';
-              const amount = data.session.metadata?.amount || 'Unknown';
-              const currency = data.session.currency === 'gbp' ? 'GBP' : 'EUR';
-              addToast("success", "Payment Successful!", `Added ${tokens} tokens (${amount} ${currency}) to your account!`);
-            } else {
-              addToast("success", "Payment Successful!", "Your tokens have been added to your account. Welcome back!");
-            }
-          })
-          .catch(() => {
-            addToast("success", "Payment Successful!", "Your tokens have been added to your account. Welcome back!");
-          });
-
-        // Показываем дополнительное уведомление о возможной задержке
-        setTimeout(() => {
-          addToast("info", "Processing Payment", "If you don't see your tokens immediately, they should appear within a few minutes. You can also refresh the page.");
-        }, 2000);
-
+      if (success === 'true' && tokens) {
+        addToast("success", "Tokens Added!", `Successfully added ${tokens} tokens to your account!`);
+        
         // Очищаем URL параметры
         window.history.replaceState({}, document.title, window.location.pathname);
         // Перезагружаем баланс
         void loadBalance();
         // Автоматически переключаемся на Dashboard
         setActiveStable("dashboard");
-      } else if (canceled === 'true') {
-        addToast("info", "Payment Canceled", "Your payment was canceled. You can try again anytime.");
-        // Очищаем URL параметры
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
   }, [addToast, loadBalance, setActiveStable]);
@@ -2697,7 +2598,7 @@ export default function AIFitWorldPrototype() {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
-  const generatePreview = React.useCallback(
+  const _generatePreview = React.useCallback(
     async (opts: GeneratorOpts) => {
       if (!isAuthed) { openAuth("signup"); return; }
       setGenerating("preview");
@@ -2721,7 +2622,7 @@ export default function AIFitWorldPrototype() {
     [isAuthed, openAuth, addToast]
   );
 
-  const publishCourse = React.useCallback(
+  const _publishCourse = React.useCallback(
     async (opts: GeneratorOpts) => {
       if (!isAuthed) { openAuth("signup"); return; }
       setGenerating("publish");
@@ -2759,36 +2660,43 @@ export default function AIFitWorldPrototype() {
 
       setTopUpLoading(true);
       try {
-        console.log("Creating Stripe checkout session");
-        const res = await fetch("/api/stripe/create-checkout-session", {
+        console.log("Processing token topup");
+        
+        // Определяем пакет на основе суммы
+        let packageId: "starter" | "builder" | "pro" | "custom" = "custom";
+        if (amountCurrency <= 10) packageId = "starter";
+        else if (amountCurrency <= 20) packageId = "builder";
+        else if (amountCurrency <= 40) packageId = "pro";
+        
+        const res = await fetch("/api/tokens/topup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: amountCurrency, region, source }),
+          body: JSON.stringify({ 
+            packageId: packageId.toUpperCase(),
+            currency: region === "UK" ? "GBP" : "EUR"
+          }),
         });
 
         const data = await res.json().catch(() => ({}));
-        console.log("Stripe API response:", { status: res.status, data });
+        console.log("Topup API response:", { status: res.status, data });
         
         if (!res.ok) {
-          throw new Error(data?.error ?? "Failed to create checkout session");
+          throw new Error(data?.error ?? "Failed to process token topup");
         }
 
-        // Перенаправляем на Stripe Checkout
-        if (data.url) {
-          console.log("Redirecting to Stripe Checkout:", data.url);
-          window.location.href = data.url;
-        } else {
-          throw new Error("No checkout URL received");
-        }
+        addToast("success", "Tokens Added!", `Successfully added ${data.tokensAdded.toLocaleString()} tokens! Your new balance is ${data.newBalance.toLocaleString()} tokens.`);
+        
+        // Перезагружаем баланс
+        void loadBalance();
         
       } catch (error) {
         console.error("Top-up failed:", error);
-        addToast("error", "Top-up Failed", error instanceof Error ? error.message : "Failed to create checkout session");
+        addToast("error", "Top-up Failed", error instanceof Error ? error.message : "Failed to process token topup");
       } finally {
         setTopUpLoading(false);
       }
     },
-    [isAuthed, openAuth, region, addToast]
+    [isAuthed, openAuth, region, addToast, loadBalance]
   );
   
   const handleGeneratePreview = React.useCallback(async (opts: GeneratorOpts) => {
@@ -2905,7 +2813,11 @@ export default function AIFitWorldPrototype() {
     }
   };
 
-  async function handleSignOut() {
+  const _onAuthed = React.useCallback(() => {
+    setAuthOpen(false);
+  }, []);
+
+  async function _handleSignOut() {
     await signOut({ redirect: false });
   }
 
@@ -3075,7 +2987,7 @@ export default function AIFitWorldPrototype() {
         onClose={() => setAuthOpen(false)}
         onRegister={handleRegister}
         onSignIn={handleSignIn}
-        onAuthed={() => setAuthOpen(false)}
+        onAuthed={_onAuthed}
       />
       {/* --- Toast notifications --- */}
       <ToastContainer toasts={toasts} onClose={removeToast} />

@@ -3,20 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
-import { TOKENS_PER_UNIT } from "@/lib/tokens";
+import { TOKEN_PACKAGES, TokenPackageId } from "@/lib/payment";
 
-// Формат А (как было раньше на бэке)
-const BodyA = z.object({
-  amount: z.number().positive(),                 // сумма денег в EUR/GBP (десятичная, без верхнего лимита)
-  region: z.enum(["EU", "UK"]),                  // для валюты
-  source: z.enum(["starter", "builder", "pro", "custom"]).optional(),
-});
-
-// Формат B (как шлёт фронт из Pricing по нашему плану)
-const BodyB = z.object({
-  amountCurrency: z.number().positive(),         // сумма денег (десятичная)
-  currency: z.enum(["EUR", "GBP"]),
-  source: z.enum(["starter", "builder", "pro", "custom"]).optional(),
+// Схема валидации для пополнения токенов
+const TopupSchema = z.object({
+  packageId: z.enum(['STARTER', 'POPULAR', 'PRO', 'ENTERPRISE'] as const),
+  currency: z.enum(['EUR', 'GBP', 'USD']).default('EUR'),
 });
 
 export async function POST(req: Request) {
@@ -25,69 +17,90 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let json: unknown;
   try {
-    json = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+    const body = await req.json();
+    const { packageId, currency } = TopupSchema.parse(body);
 
-  // Пробуем оба формата тела
-  const parsedA = BodyA.safeParse(json);
-  let amount: number;
-  let region: "EU" | "UK";
-  let source: "starter" | "builder" | "pro" | "custom";
-
-  if (parsedA.success) {
-    amount = parsedA.data.amount;
-    region = parsedA.data.region;
-    source = parsedA.data.source ?? "custom";
-  } else {
-    const parsedB = BodyB.safeParse(json);
-    if (!parsedB.success) {
-      return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    // Получаем данные пакета
+    const tokenPackage = TOKEN_PACKAGES[packageId];
+    if (!tokenPackage) {
+      return NextResponse.json({ error: "Invalid package" }, { status: 400 });
     }
-    amount = parsedB.data.amountCurrency;
-    region = parsedB.data.currency === "GBP" ? "UK" : "EU";
-    source = parsedB.data.source ?? "custom";
+
+    // Создаем транзакцию пополнения
+    const transaction = await prisma.transaction.create({
+      data: {
+        userId: session.user.id,
+        type: "topup",
+        amount: tokenPackage.tokens,
+        meta: JSON.stringify({
+          packageId,
+          packageName: tokenPackage.name,
+          price: tokenPackage.price,
+          currency,
+          tokensCredited: tokenPackage.tokens,
+          processedAt: new Date().toISOString(),
+          method: 'manual_admin', // Пока что ручное пополнение
+        }),
+      },
+    });
+
+    // Получаем новый баланс
+    const balanceResult = await prisma.transaction.aggregate({
+      where: { userId: session.user.id },
+      _sum: { amount: true },
+    });
+
+    const newBalance = balanceResult._sum.amount ?? 0;
+
+    return NextResponse.json({
+      success: true,
+      transactionId: transaction.id,
+      tokensAdded: tokenPackage.tokens,
+      newBalance,
+      package: {
+        id: packageId,
+        name: tokenPackage.name,
+        price: tokenPackage.price,
+        currency,
+        tokens: tokenPackage.tokens,
+      },
+    });
+
+  } catch (error) {
+    console.error("Token topup error:", error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Failed to process token topup" },
+      { status: 500 }
+    );
   }
+}
 
-  // Нормализуем до двух знаков после запятой (12.345 -> 12.35)
-  amount = Math.round(amount * 100) / 100;
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: "Invalid amount" }, { status: 422 });
+// GET метод для получения доступных пакетов
+export async function GET() {
+  try {
+    const packages = Object.entries(TOKEN_PACKAGES).map(([id, data]) => ({
+      id: id as TokenPackageId,
+      ...data,
+    }));
+
+    return NextResponse.json({
+      packages,
+      currencies: ['EUR', 'GBP', 'USD'],
+    });
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch packages" },
+      { status: 500 }
+    );
   }
-
-  // Пересчёт в токены
-  const tokens = Math.round(amount * TOKENS_PER_UNIT);
-
-  const metaObj = {
-    money: amount,
-    currency: region === "UK" ? "GBP" : "EUR",
-    source,
-    rate: TOKENS_PER_UNIT,
-    tokensCredited: tokens,
-  };
-
-  const tx = await prisma.transaction.create({
-    data: {
-      userId: session.user.id,
-      type: "topup",
-      amount: tokens, // храним в токенах
-      meta: JSON.stringify(metaObj),
-    },
-    select: { id: true, amount: true },
-  });
-
-  const sum = await prisma.transaction.aggregate({
-    where: { userId: session.user.id },
-    _sum: { amount: true },
-  });
-
-  return NextResponse.json({
-    ok: true,
-    txId: tx.id,
-    balance: sum._sum.amount ?? 0,
-    meta: metaObj,
-  });
 }

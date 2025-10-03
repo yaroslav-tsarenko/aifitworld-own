@@ -2,9 +2,6 @@
   "functions": {
     "app/api/courses/generate-pdf/route.ts": {
       "maxDuration": 300
-    },
-    "app/api/stripe/webhook/route.ts": {
-      "maxDuration": 10
     }
   },
   "env": {
