@@ -16,10 +16,8 @@
 - ✅ Обновлен `env.example` с правильными настройками для PostgreSQL и SQLite
 - ✅ Добавлены комментарии для переключения между базами данных
 
-### 4. **Проблемы с Stripe**
-- ✅ Обновлена версия API Stripe с `2025-07-30.basil` на стабильную `2024-12-18.acacia`
-- ✅ Исправлена конфигурация в `lib/stripe-server.ts` и `app/api/stripe/webhook/route.ts`
-- ✅ Улучшена обработка webhook событий
+### 4. **Payments**
+- ✅ Stripe удалён. Подготовлена абстракция для будущих PSP
 
 ### 5. **Проблемы с OpenAI**
 - ✅ Оптимизирована генерация изображений DALL-E 3 (последовательная вместо параллельной)
@@ -60,16 +58,14 @@
 - ✅ `app/api/courses/list/route.ts` - Список курсов пользователя
 - ✅ `app/api/courses/generate-pdf/route.ts` - Генерация PDF
 - ✅ `app/api/auth/register/route.ts` - Регистрация пользователей
-- ✅ `app/api/stripe/webhook/route.ts` - Обработка Stripe webhooks
-- ✅ `app/api/stripe/create-checkout-session/route.ts` - Создание платежных сессий
+- ✅ Добавлены заглушки `/api/payments/*`
 
 ### **Библиотеки**
 - ✅ `lib/auth.ts` - Конфигурация NextAuth
 - ✅ `lib/db.ts` - Подключение к базе данных
 - ✅ `lib/openai.ts` - Интеграция с OpenAI
 - ✅ `lib/tokens.ts` - Логика токенов
-- ✅ `lib/stripe.ts` - Клиентская конфигурация Stripe
-- ✅ `lib/stripe-server.ts` - Серверная конфигурация Stripe
+- ❌ Stripe конфиги удалены
 - ✅ `lib/hooks.ts` - React хуки
 - ✅ `lib/theme.ts` - Тема приложения
 
@@ -93,7 +89,7 @@
 - ✅ **Аутентификация** работает корректно
 - ✅ **API маршруты** полностью функциональны
 - ✅ **База данных** настроена правильно
-- ✅ **Stripe интеграция** обновлена и стабильна
+ 
 - ✅ **OpenAI интеграция** оптимизирована
 - ✅ **Фронтенд** без ошибок типизации
 

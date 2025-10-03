@@ -19,7 +19,7 @@ git add .
 
 # Коммитим изменения
 Write-Host "Committing changes..."
-git commit -m "feat: remove Stripe integration and fix linting errors"
+git commit -m "feat: deploy"
 
 # Добавляем remote origin если нужно
 Write-Host "Setting up remote origin..."
