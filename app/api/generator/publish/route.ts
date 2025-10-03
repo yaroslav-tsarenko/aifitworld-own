@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { generateWorkoutPlan, generateFitnessImages, generateNutritionAdvice, FitnessContentRequest } from "@/lib/openai";
-import { generateCourseTitle } from "@/lib/tokens";
+import { generateCourseTitle, calcFullCourseTokens } from "@/lib/tokens";
+import { prisma } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
     // Проверяем аутентификацию
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -51,6 +52,35 @@ export async function POST(request: NextRequest) {
       nutritionTips ? generateNutritionAdvice(fitnessRequest) : Promise.resolve("")
     ]);
 
+    // Рассчитываем стоимость токенов
+    const tokensRequired = calcFullCourseTokens({
+      weeks,
+      sessionsPerWeek,
+      injurySafe,
+      specialEquipment,
+      nutritionTips,
+      pdf: pdf || "none",
+      images: images || 0,
+      workoutTypes,
+      targetMuscles,
+      gender,
+    });
+
+    // Проверяем баланс токенов пользователя
+    const userTransactions = await prisma.transaction.aggregate({
+      where: { userId: session.user.id },
+      _sum: { amount: true },
+    });
+    const userBalance = userTransactions._sum.amount ?? 0;
+
+    if (userBalance < tokensRequired) {
+      return NextResponse.json({ 
+        error: "Insufficient tokens", 
+        required: tokensRequired,
+        available: userBalance 
+      }, { status: 400 });
+    }
+
     // Создаем полный курс
     const fullCourse = {
       title: generateCourseTitle(fitnessRequest),
@@ -61,16 +91,47 @@ export async function POST(request: NextRequest) {
       nutritionAdvice: nutritionAdvice || undefined,
       createdAt: new Date().toISOString(),
       type: "full",
-      userId: session.user.email,
+      userId: session.user.id,
       pdf: pdf || "none",
     };
 
-    // Сохраняем в базу данных (здесь нужно добавить логику сохранения)
-    // TODO: Добавить сохранение в базу данных
+    // Сохраняем курс в базу данных
+    const savedCourse = await prisma.course.create({
+      data: {
+        userId: session.user.id,
+        title: fullCourse.title,
+        options: JSON.stringify(fitnessRequest),
+        tokensSpent: tokensRequired,
+        content: workoutPlan,
+        images: JSON.stringify(imageUrls),
+        nutritionAdvice: nutritionAdvice || null,
+      },
+    });
+
+    // Списываем токены
+    await prisma.transaction.create({
+      data: {
+        userId: session.user.id,
+        type: "spend",
+        amount: -tokensRequired,
+        meta: JSON.stringify({
+          reason: "course_generation",
+          courseId: savedCourse.id,
+          courseTitle: fullCourse.title,
+          options: fitnessRequest,
+        }),
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      course: fullCourse,
+      course: {
+        ...fullCourse,
+        id: savedCourse.id,
+      },
+      courseId: savedCourse.id,
+      tokensSpent: tokensRequired,
+      remainingBalance: userBalance - tokensRequired,
       message: "Full course generated and published successfully"
     });
 

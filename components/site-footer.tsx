@@ -63,9 +63,10 @@ export default function SiteFooter({ onNavigate }: SiteFooterProps) {
         <div>
           <div className="font-semibold mb-2">Policies</div>
           <ul className="text-sm space-y-1 opacity-85">
-            <li><a href="/legal/refunds" onClick={(e) => { e.preventDefault(); handleNavigate('refunds'); }} className="hover:opacity-100">Refunds & Tokens</a></li>
-            <li><a href="/legal/privacy" onClick={(e) => { e.preventDefault(); handleNavigate('privacy'); }} className="hover:opacity-100">Privacy Policy</a></li>
-            <li><a href="/legal/terms" onClick={(e) => { e.preventDefault(); handleNavigate('terms'); }} className="hover:opacity-100">Terms of Service</a></li>
+            <li><a href="/legal/refunds" onClick={(e) => { e.preventDefault(); handleNavigate('legal/refunds'); }} className="hover:opacity-100">Refund & Returns Policy</a></li>
+            <li><a href="/legal/privacy" onClick={(e) => { e.preventDefault(); handleNavigate('legal/privacy'); }} className="hover:opacity-100">Privacy Policy</a></li>
+            <li><a href="/legal/terms" onClick={(e) => { e.preventDefault(); handleNavigate('legal/terms'); }} className="hover:opacity-100">Terms and Conditions</a></li>
+            <li><a href="/legal/cookies" onClick={(e) => { e.preventDefault(); handleNavigate('legal/cookies'); }} className="hover:opacity-100">Cookies Policy</a></li>
           </ul>
         </div>
 

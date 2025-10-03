@@ -111,13 +111,16 @@ export async function generateWorkoutPlan(request: FitnessContentRequest): Promi
 // Генерация изображений с DALL-E 3 (обновленная система)
 export async function generateFitnessImages(request: FitnessContentRequest, count: number = 4): Promise<string[]> {
   try {
-    // Создаем разные типы изображений для разнообразия
-    const imageTypes = ['hero', 'technique', 'macro'];
-    const imagePromises = Array.from({ length: count }, async (_, index) => {
-      const imageType = imageTypes[index % imageTypes.length];
-      const prompt = buildAdvancedImagePrompt(request, imageType);
-      
+    // Ограничиваем количество изображений для экономии токенов
+    const maxImages = Math.min(count, 4);
+    const imageUrls: string[] = [];
+    
+    // Генерируем изображения последовательно для лучшего контроля
+    for (let i = 0; i < maxImages; i++) {
       try {
+        const imageType = ['hero', 'technique', 'macro'][i % 3];
+        const prompt = buildAdvancedImagePrompt(request, imageType);
+        
         const response = await openai.images.generate({
           model: "dall-e-3",
           prompt: prompt,
@@ -126,22 +129,27 @@ export async function generateFitnessImages(request: FitnessContentRequest, coun
           n: 1,
         });
         
-        return response.data?.[0]?.url || '';
+        if (response.data?.[0]?.url) {
+          imageUrls.push(response.data[0].url);
+          console.log(`Generated image ${i + 1}/${maxImages}: ${response.data[0].url}`);
+        }
+        
+        // Небольшая пауза между запросами для избежания rate limits
+        if (i < maxImages - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
       } catch (imageError) {
-        console.warn(`Failed to generate ${imageType} image:`, imageError);
-        // Возвращаем пустую строку при ошибке - изображение будет пропущено
-        return '';
+        console.warn(`Failed to generate image ${i + 1}:`, imageError);
+        // Продолжаем генерацию остальных изображений
       }
-    });
-
-    const imageUrls = await Promise.all(imagePromises);
-    const validUrls = imageUrls.filter(url => url !== '');
+    }
     
-    if (validUrls.length === 0) {
+    if (imageUrls.length === 0) {
       console.warn("All image generation attempts failed, returning empty array");
     }
     
-    return validUrls;
+    return imageUrls;
   } catch (error) {
     console.error('Error in generateFitnessImages:', error);
     // Возвращаем пустой массив вместо ошибки
