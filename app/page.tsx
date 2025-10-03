@@ -270,7 +270,7 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
           </ul>
 
           <AccentButton className="mt-5 w-full" disabled={!!loading} onClick={() => void handleBuy(t)}>
-            {requireAuth ? (<><Lock size={16}/> Sign in to buy</>) : (loading ? "Processing…" : <>Buy {t.name} <ArrowRight size={16}/></>)}
+            {_requireAuth ? (<><Lock size={16}/> Sign in to buy</>) : (loading ? "Processing…" : <>Buy {t.name} <ArrowRight size={16}/></>)}
           </AccentButton>
         </Card>
       ))}
@@ -306,7 +306,7 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
           </div>
 
           <AccentButton className="w-full md:w-auto" disabled={!!loading || !(customNumber > 0)} onClick={() => void handleCustom()}>
-            {requireAuth ? (<><Lock size={16}/> Sign in to top up</>) : (loading ? "Processing…" : <>Top up</>)}
+            {_requireAuth ? (<><Lock size={16}/> Sign in to top up</>) : (loading ? "Processing…" : <>Top up</>)}
           </AccentButton>
         </div>
       </Card>
