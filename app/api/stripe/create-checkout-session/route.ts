@@ -28,9 +28,12 @@ export async function POST(request: NextRequest) {
       tokens = Math.floor(amount * 80); // $1 = 80 tokens
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session (Stripe v2024-12-18 params)
+    const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.aifitworld.co.uk';
     const checkoutSession = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      mode: 'payment',
+      // Let Stripe determine available methods
+      automatic_payment_methods: { enabled: true },
       line_items: [
         {
           price_data: {
@@ -39,15 +42,14 @@ export async function POST(request: NextRequest) {
               name: productName || `${tokens} Tokens`,
               description: `Token package for AIFitWorld`,
             },
-            unit_amount: Math.floor(amount * 100), // Convert to cents
+            unit_amount: Math.floor(amount * 100), // Convert minor units
           },
           quantity: 1,
         },
       ],
-      mode: 'payment',
-      success_url: `${request.headers.get('origin')}/dashboard?success=true`,
-      cancel_url: `${request.headers.get('origin')}/dashboard?canceled=true`,
-      customer_email: session.user.email,
+      success_url: `${origin}/dashboard?success=true`,
+      cancel_url: `${origin}/dashboard?canceled=true`,
+      customer_email: session.user.email ?? undefined,
       metadata: {
         userId: session.user.id,
         tokens: tokens.toString(),
