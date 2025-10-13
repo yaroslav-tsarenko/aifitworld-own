@@ -224,16 +224,37 @@ type Tier = {
 function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCustomTopUp, onTierBuy, loading }: PricingProps) {
   const isUK = region === "UK";
   const symbol = isUK ? "£" : "€";
+  const conversionRate = 1.15; // 1 GBP = 1.15 EUR
 
   const tiers: Tier[] = [
-    { name: "Starter", price: 9,  tokens: 900,  tag: "Try & explore" },
-    { name: "Builder", price: 19, tokens: 1900, tag: "Most popular", bonus: "+3%" },
-    { name: "Pro",     price: 49, tokens: 4900, tag: "Best value",   bonus: "+10%" },
+    { 
+      name: "Starter", 
+      price: isUK ? 9 : Math.round(9 * conversionRate * 100) / 100,  // £9.00 or €10.35
+      tokens: 1000,  
+      tag: "Try & explore" 
+    },
+    { 
+      name: "Builder", 
+      price: isUK ? 19 : Math.round(19 * conversionRate * 100) / 100,  // £19.00 or €21.85
+      tokens: 2575,  // 2500 + 3% bonus
+      tag: "Most popular", 
+      bonus: "+3%" 
+    },
+    { 
+      name: "Pro",     
+      price: isUK ? 49 : Math.round(49 * conversionRate * 100) / 100,  // £49.00 or €56.35
+      tokens: 6600,  // 6000 + 10% bonus
+      tag: "Best value",   
+      bonus: "+10%" 
+    },
   ];
 
   const [custom, setCustom] = useState<string>("25.00");
   const customNumber = Number(custom.replace(",", "."));
-  const approxWeeks = tokensToApproxWeeks(Math.max(0, Math.round(customNumber * TOKENS_PER_UNIT)));
+  // Конвертируем цену в GBP для расчета токенов (100 токенов = £1.00)
+  const customPriceInGBP = isUK ? customNumber : customNumber / conversionRate;
+  const customTokens = Math.max(0, Math.round(customPriceInGBP * TOKENS_PER_UNIT));
+  const approxWeeks = tokensToApproxWeeks(customTokens);
 
   const handleBuy = async (tier: Tier) => {
     if (_requireAuth) return _openAuth("signup");
@@ -300,7 +321,7 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
               />
             </div>
             <div className="mt-2 text-sm opacity-80">
-              = {(Math.max(0, Math.round(customNumber * TOKENS_PER_UNIT))).toLocaleString("en-US")} tokens
+              = {customTokens.toLocaleString("en-US")} tokens
             </div>
             <div className="text-sm mt-1 opacity-90">≈ {approxWeeks} weeks (baseline)</div>
           </div>
@@ -2501,7 +2522,7 @@ export default function AIFitWorldPrototype() {
   }
 
   const isAuthed = !!(session?.user as { id?: string })?.id;
-  const [region, setRegion] = useState<Region>("EU");
+  const [region, setRegion] = useState<Region>("UK");
   const [active, setActive] = useState<NavId>("home");
   const { unitLabel } = currencyForRegion(region);
   const [balance, setBalance] = React.useState<number>(0);

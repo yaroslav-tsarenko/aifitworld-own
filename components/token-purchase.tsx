@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { THEME } from '@/lib/theme';
-import { TokenPackageId, Currency, formatPrice } from '@/lib/payment';
+import { TokenPackageId, Currency, formatPrice, getPackagePrice } from '@/lib/payment';
 
 interface TokenPackage {
   id: TokenPackageId;
@@ -149,7 +149,7 @@ export default function TokenPurchase() {
               
               <div className="mb-4">
                 <span className="text-4xl font-bold" style={{ color: THEME.accent }}>
-                  {formatPrice(pkg.price, currency)}
+                  {formatPrice(getPackagePrice(pkg.id, currency), currency)}
                 </span>
               </div>
 

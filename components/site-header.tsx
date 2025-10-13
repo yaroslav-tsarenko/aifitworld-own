@@ -24,7 +24,7 @@ function RegionToggle({
   return (
     <div className="inline-flex rounded-lg overflow-hidden border"
          style={{ borderColor: THEME.cardBorder }}>
-      {(["EU", "UK"] as const).map((r) => (
+      {(["UK", "EU"] as const).map((r) => (
         <button
           key={r}
           onClick={() => onChange(r)}
