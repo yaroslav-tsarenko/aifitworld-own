@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PaymentService } from '@/lib/payment-providers';
-import { getTokenPackage, TokenPackageId } from '@/lib/payment';
+import { getTokenPackage, getPackagePrice, TokenPackageId, Currency } from '@/lib/payment';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { packageId, currency = 'EUR' } = body as { packageId: TokenPackageId; currency?: string };
+  const { packageId, currency = 'GBP' } = body as { packageId: TokenPackageId; currency?: Currency };
 
   const pkg = getTokenPackage(packageId);
   if (!pkg) {
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const service = new PaymentService(providerName);
     const result = await service.createPaymentSession({
       userId: session.user.id,
-      amount: pkg.price,
+      amount: getPackagePrice(packageId, currency),
       currency: currency.toLowerCase(),
       tokens: pkg.tokens,
       packageName: pkg.name,
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ sessionId: result.sessionId, paymentUrl: result.paymentUrl });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
   }
 }

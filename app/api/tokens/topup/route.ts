@@ -3,12 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
-import { TOKEN_PACKAGES, TokenPackageId } from "@/lib/payment";
+import { TOKEN_PACKAGES, TokenPackageId, getPackagePrice, Currency } from "@/lib/payment";
 
 // Схема валидации для пополнения токенов
 const TopupSchema = z.object({
   packageId: z.enum(['STARTER', 'POPULAR', 'PRO', 'ENTERPRISE'] as const),
-  currency: z.enum(['EUR', 'GBP', 'USD']).default('EUR'),
+  currency: z.enum(['EUR', 'GBP', 'USD']).default('GBP'),
 });
 
 export async function POST(req: Request) {
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         meta: JSON.stringify({
           packageId,
           packageName: tokenPackage.name,
-          price: tokenPackage.price,
+          price: getPackagePrice(packageId, currency as Currency),
           currency,
           tokensCredited: tokenPackage.tokens,
           processedAt: new Date().toISOString(),
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
       package: {
         id: packageId,
         name: tokenPackage.name,
-        price: tokenPackage.price,
+        price: getPackagePrice(packageId, currency as Currency),
         currency,
         tokens: tokenPackage.tokens,
       },

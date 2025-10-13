@@ -856,7 +856,7 @@ function Generator({
 
 /* ============================== Simple visuals ============================== */
 
-function Consultations({ region: _region, requireAuth: _requireAuth, openAuth: _openAuth }: { region: Region; requireAuth: boolean; openAuth: () => void }) {
+function Consultations() {
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-semibold">Consultations</h3>
@@ -2263,7 +2263,7 @@ function Dashboard({ requireAuth, openAuth, balance, currentPreview, onDismissPr
                             <div><strong>Images:</strong> {options.imageCount || 'N/A'}</div>
                           </div>
                         );
-                      } catch (_error) {
+                      } catch {
                         return <div style={{ color: '#ef4444' }}>Failed to parse course options</div>;
                       }
                     })()}
@@ -2943,7 +2943,7 @@ export default function AIFitWorldPrototype() {
             balanceLoading={balanceLoading}
           />
         )}
-        {active === "consultations" && <Consultations region={region} requireAuth={!isAuthed} openAuth={openAuth} />}
+        {active === "consultations" && <Consultations />}
         
         {active === "contact" && (
           <div className="space-y-4">
