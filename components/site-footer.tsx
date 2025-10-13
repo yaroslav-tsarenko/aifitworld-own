@@ -93,46 +93,6 @@ export default function SiteFooter({ onNavigate }: SiteFooterProps) {
               />
               <span className="text-xs opacity-70">Mastercard</span>
             </div>
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <Image
-                src="/images/Maestro_Logo.svg"
-                alt="Maestro"
-                width={48}
-                height={24}
-                className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
-              />
-              <span className="text-xs opacity-70">Maestro</span>
-            </div>
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <Image
-                src="/images/American_Express_logo.svg"
-                alt="American Express"
-                width={48}
-                height={24}
-                className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
-              />
-              <span className="text-xs opacity-70">Amex</span>
-            </div>
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <Image
-                src="/images/Apple_Pay_logo.svg"
-                alt="Apple Pay"
-                width={48}
-                height={24}
-                className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
-              />
-              <span className="text-xs opacity-70">Apple Pay</span>
-            </div>
-            <div className="flex items-center justify-center md:justify-start gap-2">
-              <Image
-                src="/images/Google_Pay_Logo.svg"
-                alt="Google Pay"
-                width={48}
-                height={24}
-                className="h-6 w-auto opacity-80 hover:opacity-100 transition-opacity"
-              />
-              <span className="text-xs opacity-70">Google Pay</span>
-            </div>
           </div>
         </div>
       </div>

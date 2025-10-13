@@ -1,32 +1,54 @@
-# Скрипт для деплоя на Vercel
-Write-Host "Starting deployment process..."
+# Скрипт для деплоя AIFitWorld на Vercel
+
+Write-Host "🚀 AIFitWorld Deployment Script" -ForegroundColor Green
+Write-Host "================================" -ForegroundColor Green
 
 # Проверяем, что мы в правильной папке
 if (!(Test-Path "package.json")) {
-    Write-Error "package.json not found. Please run this script from the project root."
+    Write-Error "❌ package.json не найден. Запустите скрипт из корня проекта."
     exit 1
 }
 
-# Инициализируем Git если нужно
+Write-Host "✅ Найден package.json" -ForegroundColor Green
+
+# Проверяем Git
 if (!(Test-Path ".git")) {
-    Write-Host "Initializing Git repository..."
+    Write-Host "📁 Инициализируем Git репозиторий..." -ForegroundColor Yellow
     git init
 }
 
-# Добавляем файлы в Git
-Write-Host "Adding files to Git..."
-git add .
+# Проверяем статус Git
+Write-Host "📊 Проверяем статус Git..." -ForegroundColor Yellow
+git status --porcelain
+
+# Добавляем только нужные файлы
+Write-Host "📝 Добавляем файлы в Git..." -ForegroundColor Yellow
+git add app/ components/ lib/ prisma/ public/ types/ *.json *.ts *.js *.md .gitignore
 
 # Коммитим изменения
-Write-Host "Committing changes..."
-git commit -m "feat: remove Stripe integration and fix linting errors"
+Write-Host "💾 Коммитим изменения..." -ForegroundColor Yellow
+git commit -m "feat: remove Stripe integration and fix linting errors
 
-# Добавляем remote origin если нужно
-Write-Host "Setting up remote origin..."
-git remote add origin https://github.com/aifitworld5/aifitworld.git 2>$null
+- Removed all Stripe-related code and dependencies
+- Fixed TypeScript linting errors
+- Simplified token top-up logic
+- Added flexible payment system architecture
+- Fixed policy page 404 errors
+- Updated documentation"
+
+# Настраиваем remote origin
+Write-Host "🔗 Настраиваем remote origin..." -ForegroundColor Yellow
+git remote remove origin 2>$null
+git remote add origin https://github.com/aifitworld5/aifitworld.git
 
 # Пушим на GitHub
-Write-Host "Pushing to GitHub..."
+Write-Host "🚀 Пушим на GitHub..." -ForegroundColor Yellow
 git push -u origin main --force
 
-Write-Host "Deployment completed! Check Vercel dashboard for build status."
+Write-Host "✅ Деплой завершен!" -ForegroundColor Green
+Write-Host "🌐 Проверьте статус деплоя в Vercel Dashboard" -ForegroundColor Cyan
+Write-Host "📋 Не забудьте настроить переменные окружения:" -ForegroundColor Yellow
+Write-Host "   - DATABASE_URL" -ForegroundColor White
+Write-Host "   - NEXTAUTH_URL" -ForegroundColor White
+Write-Host "   - NEXTAUTH_SECRET" -ForegroundColor White
+Write-Host "   - OPENAI_API_KEY" -ForegroundColor White
