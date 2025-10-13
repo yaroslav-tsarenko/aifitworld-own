@@ -131,8 +131,10 @@ export function LazyImage({
   src,
   alt,
   className,
+  width,
+  height,
   ...props
-}: React.ImgHTMLAttributes<HTMLImageElement> & { src: string }) {
+}: React.ImgHTMLAttributes<HTMLImageElement> & { src: string; width?: number; height?: number }) {
   const [ref, isLoaded] = useLazyLoad();
 
   return (
@@ -141,9 +143,9 @@ export function LazyImage({
       src={isLoaded ? src : "/placeholder.png"}
       alt={alt || ""}
       className={cn("lazy-load", isLoaded && "loaded", className)}
+      width={width}
+      height={height}
       {...props}
-      width={props.width ? Number(props.width) : undefined}
-      height={props.height ? Number(props.height) : undefined}
     />
   );
 }

@@ -27,14 +27,13 @@ git add app/ components/ lib/ prisma/ public/ types/ *.json *.ts *.js *.md .giti
 
 # Коммитим изменения
 Write-Host "💾 Коммитим изменения..." -ForegroundColor Yellow
-git commit -m "feat: remove Stripe integration and fix linting errors
+git commit -m "feat: remove payment methods, update port to 3001, prepare for production
 
-- Removed all Stripe-related code and dependencies
-- Fixed TypeScript linting errors
-- Simplified token top-up logic
-- Added flexible payment system architecture
-- Fixed policy page 404 errors
-- Updated documentation"
+- Remove Maestro, Amex, Apple Pay, Google Pay from footer
+- Update dev port from 3000 to 3001
+- Restore PostgreSQL configuration for production
+- Clean up local development files
+- Prepare for Vercel deployment"
 
 # Настраиваем remote origin
 Write-Host "🔗 Настраиваем remote origin..." -ForegroundColor Yellow

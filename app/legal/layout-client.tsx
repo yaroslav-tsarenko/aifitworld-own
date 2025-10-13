@@ -23,6 +23,9 @@ export default function LegalLayoutClient({ children }: { children: React.ReactN
       window.location.href = "/blog";
     } else if (page === "faq") {
       window.location.href = "/faq";
+    } else if (page.startsWith("legal/")) {
+      // Обрабатываем пути к политикам
+      window.location.href = `/${page}`;
     } else {
       // Для других страниц можно добавить логику
       console.log("Navigate to:", page);
