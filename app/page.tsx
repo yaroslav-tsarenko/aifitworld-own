@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Dumbbell, Wallet, Sparkles, ShieldAlert, Timer, FileDown, ArrowRight, ChevronRight, Settings2,
   Video, Image as ImageIcon, Info, Lock, LogIn, UserPlus, X, ChevronLeft, Mail, Quote,
@@ -156,7 +157,7 @@ function Pill({ children, className = "" }: { children: React.ReactNode; classNa
   );
 }
 
-function AccentButton({
+export function AccentButton({
   children,
   className = "",
   ...props
@@ -221,119 +222,178 @@ type Tier = {
   bonus?: string; // optional
 };
 
+
 function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCustomTopUp, onTierBuy, loading }: PricingProps) {
-  const isUK = region === "UK";
-  const symbol = isUK ? "£" : "€";
-  const conversionRate = 1.15; // 1 GBP = 1.15 EUR
+    const router = useRouter();
+    const isUK = region === "UK";
+    const symbol = isUK ? "£" : "€";
+    const conversionRate = 1.15; // 1 GBP = 1.15 EUR
 
-  const tiers: Tier[] = [
-    { 
-      name: "Starter", 
-      price: isUK ? 9 : Math.round(9 * conversionRate * 100) / 100,  // £9.00 or €10.35
-      tokens: 1000,  
-      tag: "Try & explore" 
-    },
-    { 
-      name: "Builder", 
-      price: isUK ? 19 : Math.round(19 * conversionRate * 100) / 100,  // £19.00 or €21.85
-      tokens: 2575,  // 2500 + 3% bonus
-      tag: "Most popular", 
-      bonus: "+3%" 
-    },
-    { 
-      name: "Pro",     
-      price: isUK ? 49 : Math.round(49 * conversionRate * 100) / 100,  // £49.00 or €56.35
-      tokens: 6600,  // 6000 + 10% bonus
-      tag: "Best value",   
-      bonus: "+10%" 
-    },
-  ];
+    const tiers: Tier[] = [
+        {
+            name: "Starter",
+            price: isUK ? 9 : Math.round(9 * conversionRate * 100) / 100,
+            tokens: 1000,
+            tag: "Try & explore"
+        },
+        {
+            name: "Builder",
+            price: isUK ? 19 : Math.round(19 * conversionRate * 100) / 100,
+            tokens: 2575,
+            tag: "Most popular",
+            bonus: "+3%"
+        },
+        {
+            name: "Pro",
+            price: isUK ? 49 : Math.round(49 * conversionRate * 100) / 100,
+            tokens: 6600,
+            tag: "Best value",
+            bonus: "+10%"
+        },
+    ];
 
-  const [custom, setCustom] = useState<string>("25.00");
-  const customNumber = Number(custom.replace(",", "."));
-  // Конвертируем цену в GBP для расчета токенов (100 токенов = £1.00)
-  const customPriceInGBP = isUK ? customNumber : customNumber / conversionRate;
-  const customTokens = Math.max(0, Math.round(customPriceInGBP * TOKENS_PER_UNIT));
-  const approxWeeks = tokensToApproxWeeks(customTokens);
+    const [custom, setCustom] = useState<string>("25.00");
+    const customNumber = Number(custom.replace(",", "."));
+    const customPriceInGBP = isUK ? customNumber : customNumber / conversionRate;
+    const customTokens = Math.max(0, Math.round(customPriceInGBP * TOKENS_PER_UNIT));
+    const approxWeeks = tokensToApproxWeeks(customTokens);
 
-  const handleBuy = async (tier: Tier) => {
-    if (_requireAuth) return _openAuth("signup");
-    const src = tier.name.toLowerCase() as "starter" | "builder" | "pro";
-    await onTierBuy(tier.price, src);
-  };
+    const saveAndGoToCheckout = (planObj: { name: string; price: number | string; currency: string; tokens?: number }) => {
+        try {
+            localStorage.setItem("selectedPlan", JSON.stringify(planObj));
+        } catch {
+            // ignore storage errors
+        }
+        router.push("/checkout");
+    };
 
-  const handleCustom = async () => {
-    if (_requireAuth) return _openAuth("signup");
-    if (!Number.isFinite(customNumber) || customNumber <= 0) return;
-    await onCustomTopUp(customNumber);
-  };
+    const handleBuy = async (tier: Tier) => {
+        if (_requireAuth) return _openAuth("signup");
+        try {
+            // Викликаємо бекенд Armenotech для створення ордеру
+            const res = await fetch("/api/armenotech/create-transaction", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount: Number(tier.price),
+                    fullName: "Digital Brain User", // можна підставити з контексту юзера
+                    email: "client@example.com",
+                    country: "GB",
+                }),
+            });
 
-  return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {tiers.map((t, i) => (
-        <Card key={t.name} interactive className={cn("relative", i === 1 && "ring-1 ring-[#FFD60A]/50")}>
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t.name}</h3>
-            <Pill>{t.tag}</Pill>
-          </div>
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Payment error");
 
-          <div className="mt-3 text-3xl font-bold tracking-tight" style={{ color: THEME.accent }}>
-            {symbol}{t.price.toFixed(2)}
-          </div>
-          <div className="mt-1 text-sm opacity-70">
-            {t.tokens.toLocaleString("en-US")} tokens {t.bonus && <span className="ml-2 opacity-90">({t.bonus})</span>}
-          </div>
+            if (data.redirect) {
+                window.location.href = data.redirect; // перекидаємо на Armenotech checkout
+            } else {
+                alert("No redirect URL received from gateway");
+            }
+        } catch (err: any) {
+            console.error("Payment error:", err);
+            alert("Payment failed: " + err.message);
+        }
+    };
 
-          <ul className="mt-4 space-y-2 text-sm opacity-90">
-            <li className="flex items-center gap-2"><Sparkles size={16}/> Good for ~{tokensToApproxWeeks(t.tokens)} weeks</li>
-            <li className="flex items-center gap-2"><Dumbbell size={16}/> Previews + full course</li>
-            <li className="flex items-center gap-2"><FileDown size={16}/> PDF export</li>
-          </ul>
 
-          <AccentButton className="mt-5 w-full" disabled={!!loading} onClick={() => void handleBuy(t)}>
-            {_requireAuth ? (<><Lock size={16}/> Sign in to buy</>) : (loading ? "Processing…" : <>Buy {t.name} <ArrowRight size={16}/></>)}
-          </AccentButton>
-        </Card>
-      ))}
+    const handleCustom = async () => {
+        if (_requireAuth) return _openAuth("signup");
+        if (!Number.isFinite(customNumber) || customNumber <= 0) return;
 
-      {/* Custom amount with decimals */}
-      <Card className="md:col-span-2 lg:col-span-2" interactive>
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Custom amount</h3>
-          <Pill>Flexible</Pill>
+        try {
+            const res = await fetch("/api/armenotech/create-transaction", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount: customNumber,
+                    fullName: "Digital Brain User",
+                    email: "client@example.com",
+                    country: "GB",
+                }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Payment error");
+
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                alert("No redirect URL received from gateway");
+            }
+        } catch (err: any) {
+            console.error("Payment error:", err);
+            alert("Payment failed: " + err.message);
+        }
+    };
+
+
+    return (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {tiers.map((t, i) => (
+                <Card key={t.name} interactive className={cn("relative", i === 1 && "ring-1 ring-[#FFD60A]/50")}>
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">{t.name}</h3>
+                        <Pill>{t.tag}</Pill>
+                    </div>
+
+                    <div className="mt-3 text-3xl font-bold tracking-tight" style={{ color: THEME.accent }}>
+                        {symbol}{t.price.toFixed(2)}
+                    </div>
+                    <div className="mt-1 text-sm opacity-70">
+                        {t.tokens.toLocaleString("en-US")} tokens {t.bonus && <span className="ml-2 opacity-90">({t.bonus})</span>}
+                    </div>
+
+                    <ul className="mt-4 space-y-2 text-sm opacity-90">
+                        <li className="flex items-center gap-2"><Sparkles size={16}/> Good for ~{tokensToApproxWeeks(t.tokens)} weeks</li>
+                        <li className="flex items-center gap-2"><Dumbbell size={16}/> Previews + full course</li>
+                        <li className="flex items-center gap-2"><FileDown size={16}/> PDF export</li>
+                    </ul>
+
+                    <AccentButton className="mt-5 w-full" disabled={!!loading} onClick={() => void handleBuy(t)}>
+                        {_requireAuth ? (<><Lock size={16}/> Sign in to buy</>) : (loading ? "Processing…" : <>Buy {t.name} <ArrowRight size={16}/></>)}
+                    </AccentButton>
+                </Card>
+            ))}
+
+            <Card className="md:col-span-2 lg:col-span-2" interactive>
+                <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Custom amount</h3>
+                    <Pill>Flexible</Pill>
+                </div>
+
+                <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                    <div>
+                        <label className="text-sm opacity-80">Amount ({isUK ? "GBP" : "EUR"})</label>
+                        <div className="mt-1 flex items-center gap-2">
+                            <span className="rounded-lg border px-3 py-2" style={{ borderColor: THEME.cardBorder }}>{symbol}</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="0.00"
+                                value={custom}
+                                onChange={(e) => setCustom(e.target.value)}
+                                className="w-full rounded-lg border px-3 py-2 bg-transparent"
+                                style={{ borderColor: THEME.cardBorder }}
+                            />
+                        </div>
+                        <div className="mt-2 text-sm opacity-80">
+                            = {customTokens.toLocaleString("en-US")} tokens
+                        </div>
+                        <div className="text-sm mt-1 opacity-90">≈ {approxWeeks} weeks (baseline)</div>
+                    </div>
+
+                    <AccentButton className="w-full md:w-auto" disabled={!!loading || !(customNumber > 0)} onClick={() => void handleCustom()}>
+                        {_requireAuth ? (<><Lock size={16}/> Sign in to top up</>) : (loading ? "Processing…" : <>Top up</>)}
+                    </AccentButton>
+                </div>
+            </Card>
         </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-          <div>
-            <label className="text-sm opacity-80">Amount ({isUK ? "GBP" : "EUR"})</label>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="rounded-lg border px-3 py-2" style={{ borderColor: THEME.cardBorder }}>{symbol}</span>
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0.01"
-                placeholder="0.00"
-                value={custom}
-                onChange={(e) => setCustom(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 bg-transparent"
-                style={{ borderColor: THEME.cardBorder }}
-              />
-            </div>
-            <div className="mt-2 text-sm opacity-80">
-              = {customTokens.toLocaleString("en-US")} tokens
-            </div>
-            <div className="text-sm mt-1 opacity-90">≈ {approxWeeks} weeks (baseline)</div>
-          </div>
-
-          <AccentButton className="w-full md:w-auto" disabled={!!loading || !(customNumber > 0)} onClick={() => void handleCustom()}>
-            {_requireAuth ? (<><Lock size={16}/> Sign in to top up</>) : (loading ? "Processing…" : <>Top up</>)}
-          </AccentButton>
-        </div>
-      </Card>
-    </div>
-  );
+    );
 }
+
 
 
 /* ============================== Generator (stub) ============================== */

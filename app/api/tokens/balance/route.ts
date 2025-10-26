@@ -1,19 +1,19 @@
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { getUserBalance } from "@/lib/balance";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  // Неавторизованным просто возвращаем 0, чтобы хедер не падал
-  if (!session?.user?.id) {
-    return NextResponse.json({ balance: 0 });
-  }
+export async function GET(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const sum = await prisma.transaction.aggregate({
-    where: { userId: session.user.id },
-    _sum: { amount: true },
-  });
-
-  return NextResponse.json({ balance: sum._sum.amount ?? 0 });
+    try {
+        const balance = await getUserBalance(session.user.id);
+        return NextResponse.json({ balance });
+    } catch (err: any) {
+        console.error("balance API error:", err);
+        return NextResponse.json({ error: "Internal" }, { status: 500 });
+    }
 }
