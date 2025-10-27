@@ -157,24 +157,25 @@ function Pill({ children, className = "" }: { children: React.ReactNode; classNa
   );
 }
 
-export function AccentButton({
-  children,
-  className = "",
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      {...props}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold shadow-[0_0_0_1px_rgba(0,0,0,0.6)]",
-        className
-      )}
-      style={{ background: THEME.accent, color: "#0E0E10" }}
-    >
-      {children}
-    </button>
-  );
+function AccentButton({
+                          children,
+                          className = "",
+                          ...props
+                      }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+    return (
+        <button
+            {...props}
+            className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold shadow-[0_0_0_1px_rgba(0,0,0,0.6)]",
+                className
+            )}
+            style={{ background: THEME.accent, color: "#0E0E10" }}
+        >
+            {children}
+        </button>
+    );
 }
+
 
 function GhostButton({
   children,
@@ -223,6 +224,7 @@ type Tier = {
 };
 
 
+// File: `app/page.tsx` (updated Pricing function)
 function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCustomTopUp, onTierBuy, loading }: PricingProps) {
     const router = useRouter();
     const isUK = region === "UK";
@@ -258,17 +260,20 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
     const customTokens = Math.max(0, Math.round(customPriceInGBP * TOKENS_PER_UNIT));
     const approxWeeks = tokensToApproxWeeks(customTokens);
 
+    // new: track which action is creating (tier name or "custom")
+    const [creating, setCreating] = useState<string | null>(null);
+
     const saveAndGoToCheckout = (planObj: { name: string; price: number | string; currency: string; tokens?: number }) => {
         try {
             localStorage.setItem("selectedPlan", JSON.stringify(planObj));
         } catch {
             // ignore storage errors
         }
-        router.push("/checkout");
     };
 
     const handleBuy = async (tier: Tier) => {
         if (_requireAuth) return _openAuth("signup");
+        setCreating(tier.name);
         try {
             // Викликаємо бекенд Armenotech для створення ордеру
             const res = await fetch("/api/armenotech/create-transaction", {
@@ -282,7 +287,7 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
                 }),
             });
 
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || "Payment error");
 
             if (data.redirect) {
@@ -290,9 +295,11 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
             } else {
                 alert("No redirect URL received from gateway");
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error("Payment error:", err);
-            alert("Payment failed: " + err.message);
+            alert("Payment failed: " + err);
+        } finally {
+            setCreating(null);
         }
     };
 
@@ -301,6 +308,7 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
         if (_requireAuth) return _openAuth("signup");
         if (!Number.isFinite(customNumber) || customNumber <= 0) return;
 
+        setCreating("custom");
         try {
             const res = await fetch("/api/armenotech/create-transaction", {
                 method: "POST",
@@ -313,7 +321,7 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
                 }),
             });
 
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || "Payment error");
 
             if (data.redirect) {
@@ -321,9 +329,11 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
             } else {
                 alert("No redirect URL received from gateway");
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error("Payment error:", err);
-            alert("Payment failed: " + err.message);
+            alert("Payment failed: " + err);
+        } finally {
+            setCreating(null);
         }
     };
 
@@ -350,8 +360,16 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
                         <li className="flex items-center gap-2"><FileDown size={16}/> PDF export</li>
                     </ul>
 
-                    <AccentButton className="mt-5 w-full" disabled={!!loading} onClick={() => void handleBuy(t)}>
-                        {_requireAuth ? (<><Lock size={16}/> Sign in to buy</>) : (loading ? "Processing…" : <>Buy {t.name} <ArrowRight size={16}/></>)}
+                    <AccentButton
+                        className="mt-5 w-full"
+                        disabled={!!loading || !!creating}
+                        onClick={() => void handleBuy(t)}
+                    >
+                        {_requireAuth ? (
+                            <><Lock size={16}/> Sign in to buy</>
+                        ) : creating === t.name ? (
+                            <><Spinner size={16} className="mr-2"/> Processing…</>
+                        ) : (loading ? "Processing…" : <>Buy {t.name} <ArrowRight size={16}/></>)}
                     </AccentButton>
                 </Card>
             ))}
@@ -385,8 +403,16 @@ function Pricing({ region, requireAuth: _requireAuth, openAuth: _openAuth, onCus
                         <div className="text-sm mt-1 opacity-90">≈ {approxWeeks} weeks (baseline)</div>
                     </div>
 
-                    <AccentButton className="w-full md:w-auto" disabled={!!loading || !(customNumber > 0)} onClick={() => void handleCustom()}>
-                        {_requireAuth ? (<><Lock size={16}/> Sign in to top up</>) : (loading ? "Processing…" : <>Top up</>)}
+                    <AccentButton
+                        className="w-full md:w-auto"
+                        disabled={!!loading || !!creating || !(customNumber > 0)}
+                        onClick={() => void handleCustom()}
+                    >
+                        {_requireAuth ? (
+                            <><Lock size={16}/> Sign in to top up</>
+                        ) : creating === "custom" ? (
+                            <><Spinner size={16} className="mr-2"/> Processing…</>
+                        ) : (loading ? "Processing…" : <>Top up</>)}
                     </AccentButton>
                 </div>
             </Card>
@@ -2732,27 +2758,27 @@ export default function AIFitWorldPrototype() {
   const onTopUp = React.useCallback(
     async (amountCurrency: number, source: "starter" | "builder" | "pro" | "custom" = "custom") => {
       console.log("onTopUp called with:", { amountCurrency, source, isAuthed });
-      
-      if (!isAuthed) { 
+
+      if (!isAuthed) {
         console.log("User not authenticated, opening auth");
-        openAuth("signup"); 
-        return; 
+        openAuth("signup");
+        return;
       }
 
       setTopUpLoading(true);
       try {
         console.log("Processing token topup");
-        
+
         // Определяем пакет на основе суммы
         let packageId: "starter" | "builder" | "pro" | "custom" = "custom";
         if (amountCurrency <= 10) packageId = "starter";
         else if (amountCurrency <= 20) packageId = "builder";
         else if (amountCurrency <= 40) packageId = "pro";
-        
+
         const res = await fetch("/api/tokens/topup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             packageId: packageId.toUpperCase(),
             currency: region === "UK" ? "GBP" : "EUR"
           }),
@@ -2760,16 +2786,16 @@ export default function AIFitWorldPrototype() {
 
         const data = await res.json().catch(() => ({}));
         console.log("Topup API response:", { status: res.status, data });
-        
+
         if (!res.ok) {
           throw new Error(data?.error ?? "Failed to process token topup");
         }
 
         addToast("success", "Tokens Added!", `Successfully added ${data.tokensAdded.toLocaleString()} tokens! Your new balance is ${data.newBalance.toLocaleString()} tokens.`);
-        
+
         // Перезагружаем баланс
         void loadBalance();
-        
+
       } catch (error) {
         console.error("Top-up failed:", error);
         addToast("error", "Top-up Failed", error instanceof Error ? error.message : "Failed to process token topup");
@@ -2779,7 +2805,7 @@ export default function AIFitWorldPrototype() {
     },
     [isAuthed, openAuth, region, addToast, loadBalance]
   );
-  
+
   const handleGeneratePreview = React.useCallback(async (opts: GeneratorOpts) => {
     if (!isAuthed) return openAuth("signin");
 

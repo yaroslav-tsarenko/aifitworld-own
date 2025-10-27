@@ -30,33 +30,32 @@ export interface PaymentVerificationResult {
   error?: string;
 }
 
-// Конфигурация токен-пакетов (цены в GBP)
 export const TOKEN_PACKAGES = {
-  STARTER: {
-    name: 'Starter Token Pack',
-    priceGBP: 9.00,
-    tokens: 1000,
-    description: 'Perfect for trying out AI fitness programs',
-  },
-  POPULAR: {
-    name: 'Popular Token Pack',
-    priceGBP: 19.00,
-    tokens: 2575, // 2500 + 3% bonus
-    description: 'Most popular choice for regular users',
-  },
-  PRO: {
-    name: 'Pro Token Pack',
-    priceGBP: 49.00,
-    tokens: 6600, // 6000 + 10% bonus
-    description: 'Great value for fitness enthusiasts',
-  },
-  ENTERPRISE: {
-    name: 'Enterprise Token Pack',
-    priceGBP: 79.99,
-    tokens: 15000,
-    description: 'Maximum value for power users',
-  },
+    STARTER: {
+        name: "Starter",
+        price: 9,
+        tokens: 1000,
+    },
+    POPULAR: {
+        name: "Builder",
+        price: 19,
+        tokens: 2575,
+    },
+    PRO: {
+        name: "Pro",
+        price: 49,
+        tokens: 6600,
+    },
+    ENTERPRISE: {
+        name: "Custom",
+        price: 0,
+        tokens: 0, // calculated dynamically
+    },
 } as const;
+
+export function getPackagePrice(id: keyof typeof TOKEN_PACKAGES, currency: Currency) {
+    return TOKEN_PACKAGES[id].price;
+}
 
 export type TokenPackageId = keyof typeof TOKEN_PACKAGES;
 
@@ -82,17 +81,6 @@ export function getAllTokenPackages() {
     id: id as TokenPackageId,
     ...packageData,
   }));
-}
-
-// Получить цену пакета в нужной валюте
-export function getPackagePrice(id: TokenPackageId, currency: Currency = 'GBP'): number {
-  const packageData = TOKEN_PACKAGES[id];
-  if (currency === 'GBP') {
-    return packageData.priceGBP;
-  } else if (currency === 'EUR') {
-    return Math.round(packageData.priceGBP * CONVERSION_RATE * 100) / 100;
-  }
-  return packageData.priceGBP; // fallback to GBP
 }
 
 export function formatPrice(price: number, currency: Currency = 'GBP'): string {

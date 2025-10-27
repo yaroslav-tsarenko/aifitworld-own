@@ -1,62 +1,108 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
+import { getUserBalance } from "@/lib/balance";
 
-const prisma = new PrismaClient();
-
-// Мапа токенів по планах
-const TOKEN_MAP: Record<string, number> = {
-    starter: 1000,
-    builder: 2575,
-    pro: 6600,
-};
+const TOKENS_PER_UNIT = Number(process.env.TOKENS_PER_UNIT) || 100;
 
 export async function POST(req: Request) {
     try {
-        const { amount, currency, status, transaction_guid, userId, planName } = await req.json();
+        const body = await req.json().catch(() => ({}));
+        const { transaction_guid, userId, amount, currency, planName, tokens } = body;
 
-        if (status !== "success") {
-            return NextResponse.json({ ok: false, reason: "payment_failed" }, { status: 400 });
+        if (!transaction_guid || !userId) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // 1️⃣ Визначаємо кількість токенів
-        const planKey = planName?.toLowerCase();
-        let tokens = TOKEN_MAP[planKey] ?? 0;
-
-        if (planKey === "custom") {
-            // custom = 100 токенів за 1 GBP
-            tokens = Math.round(Number(amount) * 100);
+        // Calculate tokens to credit
+        let tokensAdded = 0;
+        if (typeof tokens === "number" && !Number.isNaN(tokens)) {
+            tokensAdded = Math.max(0, Math.floor(tokens));
+        } else if (amount != null && !Number.isNaN(Number(amount))) {
+            tokensAdded = Math.max(0, Math.round(Number(amount) * TOKENS_PER_UNIT));
+        } else {
+            const planMap: Record<string, number> = {
+                starter: 1000,
+                builder: 2500,
+                pro: 5000,
+            };
+            if (planName && planMap[planName.toLowerCase()]) {
+                tokensAdded = planMap[planName.toLowerCase()];
+            } else {
+                return NextResponse.json({ error: "Unable to determine tokens to credit" }, { status: 400 });
+            }
         }
 
-        // 2️⃣ Знаходимо користувача
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+        if (tokensAdded <= 0) {
+            return NextResponse.json({ error: "Calculated zero tokens to credit" }, { status: 400 });
+        }
 
-        // 3️⃣ Створюємо транзакцію
-        await prisma.transaction.create({
-            data: {
-                userId,
-                type: "topup",
-                amount: tokens,
-                meta: JSON.stringify({
-                    amount,
-                    currency,
-                    transaction_guid,
-                    planName,
-                }),
+        // Idempotency: check if transaction with same guid was already processed
+        const existing = await prisma.transaction.findFirst({
+            where: {
+                meta: { contains: transaction_guid },
             },
         });
 
-        // 4️⃣ Оновлюємо баланс користувача
-        // (якщо ти зберігаєш баланс у окремому полі)
-        // якщо ні — можеш розраховувати суму на фронті
+        if (existing) {
+            // return current balance (use getUserBalance if available)
+            const balance = typeof getUserBalance === "function" ? await getUserBalance(userId) : null;
+            return NextResponse.json({
+                success: true,
+                alreadyProcessed: true,
+                tokensAdded: 0,
+                newBalance: balance,
+            });
+        }
 
-        return NextResponse.json({
-            ok: true,
-            message: "Tokens added successfully",
-            tokensAdded: tokens,
-        });
-    } catch (err) {
+        // Build meta as JSON string (Transaction.meta is a string in schema)
+        const metaObj = {
+            provider: "armenotech",
+            transaction_guid,
+            currency: currency ?? null,
+            amountCurrency: amount ?? null,
+            planName: planName ?? null,
+            recordedAt: new Date().toISOString(),
+        };
+        const metaStr = JSON.stringify(metaObj);
+
+        // Ensure user exists
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        // Atomic create transaction + increment user.tokens
+        const [createdTx, updatedUser] = await prisma.$transaction([
+            prisma.transaction.create({
+                data: {
+                    userId,
+                    amount: tokensAdded,
+                    type: "topup",
+                    meta: metaStr,
+                },
+            }),
+            prisma.user.update({
+                where: { id: userId },
+                data: {
+                    tokens: { increment: tokensAdded },
+                },
+            }),
+        ]);
+
+        // Compute new balance; prefer getUserBalance if available
+        let newBalance: number | null = null;
+        try {
+            newBalance = typeof getUserBalance === "function" ? await getUserBalance(userId) : updatedUser.tokens;
+        } catch {
+            newBalance = updatedUser.tokens;
+        }
+
+        return NextResponse.json({ success: true, tokensAdded, newBalance });
+    } catch (err: unknown) {
         console.error("Payment success handler error:", err);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return NextResponse.json(
+            { error: err instanceof Error ? err.message : "Server error" },
+            { status: 500 }
+        );
     }
 }
